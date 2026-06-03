@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Review" ADD COLUMN     "featured" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "sortOrder" INTEGER NOT NULL DEFAULT 0;

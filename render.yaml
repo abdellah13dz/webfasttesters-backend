@@ -1,0 +1,24 @@
+# Render Blueprint — use when deploying this folder as its own repo root
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: fasttesters-api
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FRONTEND_URL
+        value: https://fasttesters.com
+      - key: SITE_URL
+        value: https://fasttesters.com
+      - key: ALLOWED_ORIGINS
+        value: https://fasttesters.com,https://www.fasttesters.com
