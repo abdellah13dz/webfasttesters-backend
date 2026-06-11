@@ -1,4 +1,8 @@
 import 'dotenv/config';
+import { applyDatabaseUrlEnv } from './lib/database-url.js';
+
+applyDatabaseUrlEnv();
+
 import express from 'express';
 import cors from 'cors';
 import publicRoutes from './routes/public.js';

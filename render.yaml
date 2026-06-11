@@ -12,8 +12,12 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # Use Supabase SESSION pooler — NOT db.*.supabase.co (IPv6-only, fails on Render)
+      # postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=require
       - key: DATABASE_URL
         sync: false
+      - key: SUPABASE_POOLER_REGION
+        value: eu-west-1
       - key: JWT_SECRET
         sync: false
       - key: FRONTEND_URL
