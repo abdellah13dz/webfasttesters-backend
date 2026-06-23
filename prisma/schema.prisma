@@ -244,15 +244,16 @@ model AnalyticsEvent {
 }
 
 model SmtpConfig {
-  id       String @id @default(cuid())
-  host     String
-  port     Int    @default(587)
-  secure   Boolean @default(false)
-  user     String
-  pass     String
-  fromName String @default("Fast Testers")
-  fromEmail String @default("support@fasttesters.com")
-  active   Boolean @default(true)
+  id          String  @id @default(cuid())
+  host        String
+  port        Int     @default(587)
+  secure      Boolean @default(false)
+  user        String
+  pass        String
+  fromName    String  @default("Fast Testers")
+  fromEmail   String  @default("support@fasttesters.com")
+  notifyEmail String? // Inbox for contact/submission notifications
+  active      Boolean @default(true)
 }
 
 model AppSubmission {

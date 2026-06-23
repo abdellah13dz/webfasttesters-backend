@@ -29,6 +29,7 @@ import { requireAdmin } from './middleware/requireAdmin.js';
 import { auditAdminMutations } from './middleware/auditAdmin.js';
 import { authRateLimit } from './middleware/rateLimit.js';
 import { getAllowedOrigins } from './lib/cors-origins.js';
+import { syncSmtpConfigFromEnv } from './lib/smtp-config.js';
 
 const adminGuard = [requireAdmin, auditAdminMutations];
 
@@ -73,4 +74,7 @@ app.get('/health', (_req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
+  syncSmtpConfigFromEnv().catch((error) => {
+    console.error('SMTP env sync failed:', error);
+  });
 });

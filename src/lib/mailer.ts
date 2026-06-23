@@ -1,34 +1,69 @@
 import nodemailer from 'nodemailer';
 import { db } from './db.js';
+import {
+  getSmtpTransportTimeouts,
+  resolveSmtpConfig,
+  type ResolvedSmtpConfig,
+} from './smtp-config.js';
+
+export const MASKED_SMTP_PASSWORD = '••••••••';
+
+export interface SmtpCredentials {
+  host: string;
+  port: number;
+  secure: boolean;
+  user: string;
+  pass: string;
+}
 
 let cachedTransporter: nodemailer.Transporter | null | undefined;
+let cachedConfigKey: string | null | undefined;
 
-async function getTransporter(): Promise<nodemailer.Transporter | null> {
-  if (cachedTransporter !== undefined) {
-    return cachedTransporter;
-  }
+function configCacheKey(config: ResolvedSmtpConfig): string {
+  return `${config.source}:${config.id || 'env'}:${config.host}:${config.port}:${config.user}`;
+}
 
-  const config = await db.smtpConfig.findFirst({ where: { active: true } });
+export function createSmtpTransport(config: SmtpCredentials): nodemailer.Transporter {
+  const port = Number(config.port);
+  const secure = port === 465 ? true : port === 587 ? false : Boolean(config.secure);
+  const timeouts = getSmtpTransportTimeouts();
+
+  return nodemailer.createTransport({
+    host: config.host.trim(),
+    port,
+    secure,
+    auth: {
+      user: config.user.trim(),
+      pass: config.pass,
+    },
+    connectionTimeout: timeouts.connectionTimeout,
+    socketTimeout: timeouts.socketTimeout,
+    greetingTimeout: timeouts.greetingTimeout,
+    ...(port === 587 && !secure ? { requireTLS: true } : {}),
+  });
+}
+
+async function getTransporter(): Promise<{ transporter: nodemailer.Transporter; config: ResolvedSmtpConfig } | null> {
+  const config = await resolveSmtpConfig();
   if (!config) {
     cachedTransporter = null;
+    cachedConfigKey = null;
     return null;
   }
 
-  cachedTransporter = nodemailer.createTransport({
-    host: config.host,
-    port: config.port,
-    secure: config.secure,
-    auth: {
-      user: config.user,
-      pass: config.pass,
-    },
-  });
+  const key = configCacheKey(config);
+  if (cachedTransporter !== undefined && cachedConfigKey === key) {
+    return { transporter: cachedTransporter!, config };
+  }
 
-  return cachedTransporter;
+  cachedTransporter = createSmtpTransport(config);
+  cachedConfigKey = key;
+  return { transporter: cachedTransporter, config };
 }
 
 export function clearMailerCache(): void {
   cachedTransporter = undefined;
+  cachedConfigKey = undefined;
 }
 
 export interface SendMailOptions {
@@ -41,15 +76,12 @@ export interface SendMailOptions {
 
 export async function sendMail(options: SendMailOptions): Promise<{ sent: boolean; error?: string }> {
   try {
-    const transporter = await getTransporter();
-    if (!transporter) {
+    const resolved = await getTransporter();
+    if (!resolved) {
       return { sent: false, error: 'SMTP is not configured' };
     }
 
-    const config = await db.smtpConfig.findFirst({ where: { active: true } });
-    if (!config) {
-      return { sent: false, error: 'SMTP is not configured' };
-    }
+    const { transporter, config } = resolved;
 
     await transporter.sendMail({
       from: `"${config.fromName}" <${config.fromEmail}>`,
@@ -69,8 +101,13 @@ export async function sendMail(options: SendMailOptions): Promise<{ sent: boolea
 }
 
 export async function getAdminNotifyEmail(): Promise<string | null> {
-  if (process.env.ADMIN_NOTIFY_EMAIL) {
-    return process.env.ADMIN_NOTIFY_EMAIL;
+  const config = await resolveSmtpConfig();
+  if (config?.notifyEmail?.trim()) {
+    return config.notifyEmail.trim();
+  }
+
+  if (process.env.ADMIN_NOTIFY_EMAIL?.trim()) {
+    return process.env.ADMIN_NOTIFY_EMAIL.trim();
   }
 
   const admin = await db.user.findFirst({
@@ -78,7 +115,7 @@ export async function getAdminNotifyEmail(): Promise<string | null> {
     select: { email: true },
   });
 
-  return admin?.email ?? null;
+  return admin?.email?.trim() ?? config?.fromEmail?.trim() ?? null;
 }
 
 export async function notifyAdminNewContact(contact: {
@@ -183,4 +220,27 @@ export async function sendNewsletterCampaign(options: {
   }
 
   return { sent, failed, errors };
+}
+
+export async function sendSmtpTestEmail(options: {
+  config: SmtpCredentials & { fromName: string; fromEmail: string };
+  to: string;
+}): Promise<{ sent: boolean; error?: string }> {
+  try {
+    const transporter = createSmtpTransport(options.config);
+    await transporter.verify();
+    await transporter.sendMail({
+      from: `"${options.config.fromName}" <${options.config.fromEmail}>`,
+      to: options.to,
+      subject: 'Fast Testers SMTP test',
+      text: 'This is a test email from your Fast Testers SMTP configuration. Sending and receiving are working.',
+      html: '<p>This is a <strong>test email</strong> from your Fast Testers SMTP configuration.</p><p>Sending and receiving are working.</p>',
+    });
+    transporter.close();
+    return { sent: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to send test email';
+    console.error('SMTP test email error:', error);
+    return { sent: false, error: message };
+  }
 }
