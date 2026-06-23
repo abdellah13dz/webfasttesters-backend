@@ -85,18 +85,18 @@ const seedArticles = [
 ];
 
 const seedReviews = [
-  { text: 'Not only did Fast Testers fulfill the requirement of 12 testers engaging with my app Grosch over 14 days, but they also provided thoughtful feedback.', author: 'Madeline Petersen', role: 'Creator of Grosch', rating: 5, featured: true, sortOrder: 0 },
-  { text: 'Got my app approved in the Play Store on the first attempt, thanks to the testers community.', author: 'Wouter Olwagen', role: '', rating: 5, featured: true, sortOrder: 1 },
-  { text: 'Private testing option did wonders. I got not only dozens of testers who knew how to interact with the app, but also I received detailed report.', author: 'Konrad Ptasiński', role: 'Game Developer of Curse of the Crypt', rating: 5, featured: true, sortOrder: 2 },
-  { text: 'Your reviews were excellent. And we got approved for production in one day after integrating your feedback.', author: 'Dennis Chukwuemeka', role: 'Creator of DDV Bible', rating: 5, featured: true, sortOrder: 3 },
-  { text: 'Fantastic service and all of my questions were answered quickly and efficiently.', author: 'Nicola Michelmore', role: 'Creator of Motorhome & RV Manager', rating: 5, featured: false, sortOrder: 4 },
-  { text: 'This app was a blessing when I needed testers for closed testing. Definitely worth the money.', author: 'Kenan Grahic', role: 'Creator of Sandman', rating: 5, featured: true, sortOrder: 4 },
-  { text: 'Best app for testers... I got my app rejected five times and finally, with the help of Fast Testers, today I got production access.', author: 'NIRAV K PATEL', role: 'Creator of ScrinTrim', rating: 5, featured: true, sortOrder: 5 },
-  { text: 'Great service—I went for the paid and got a great bit of feedback from testing.', author: 'Jason Alexander', role: 'Creator of ConvertQ', rating: 4, featured: false, sortOrder: 6 },
-  { text: "Everything went perfectly with the app! Very happy and it's the best service for testing your app.", author: 'PIERRE-ALEXANDRE COTE', role: 'Creator of F1 Insider', rating: 5, featured: false, sortOrder: 7 },
-  { text: 'Very helpful application! Successfully passed closed testing and received production approval!', author: 'Agnieszka Piérkowska', role: 'Developer of Bibile', rating: 5, featured: false, sortOrder: 8 },
-  { text: "I just got granted production access for my app! I couldn't have done it without you guys.", author: 'Keval Sakariya', role: 'Developer of Modern QR', rating: 5, featured: true, sortOrder: 6 },
-  { text: 'After just 14 days, I was finally able to access production without any issues. The support was impeccable.', author: 'Kevin Corigliano', role: 'Developer of Echo Verse', rating: 5, featured: true, sortOrder: 7 },
+  { text: 'Not only did Fast Testers fulfill the requirement of 12 testers engaging with my app Grosch over 14 days, but they also provided thoughtful feedback.', author: 'Madeline Petersen', role: 'Creator of Grosch', appName: 'Grosch', category: 'Finance', result: 'Production access granted in 16 days', rating: 5, featured: false, caseStudy: true, sortOrder: 0 },
+  { text: 'Got my app approved in the Play Store on the first attempt, thanks to the testers community.', author: 'Wouter Olwagen', role: 'Creator of Wouter\'s App', appName: "Wouter's App", category: 'Productivity', result: 'Approved on first attempt', rating: 5, featured: true, caseStudy: false, sortOrder: 1 },
+  { text: 'Private testing option did wonders. I got not only dozens of testers who knew how to interact with the app, but also I received detailed report.', author: 'Konrad Ptasiński', role: 'Game Developer of Curse of the Crypt', appName: 'Curse of the Crypt', category: 'Utilities', result: 'Detailed reports delivered', rating: 5, featured: true, caseStudy: false, sortOrder: 2 },
+  { text: 'Your reviews were excellent. And we got approved for production in one day after integrating your feedback.', author: 'Dennis Chukwuemeka', role: 'Creator of DDV Bible', appName: 'DDV Bible', category: 'Education', result: 'Approved 1 day after feedback', rating: 5, featured: true, caseStudy: false, sortOrder: 3 },
+  { text: 'Fantastic service and all of my questions were answered quickly and efficiently.', author: 'Nicola Michelmore', role: 'Creator of Motorhome & RV Manager', appName: 'Motorhome & RV Manager', rating: 5, featured: false, caseStudy: false, sortOrder: 4 },
+  { text: 'This app was a blessing when I needed testers for closed testing. Definitely worth the money.', author: 'Kenan Grahic', role: 'Creator of Sandman', appName: 'Sandman', category: 'Lifestyle', result: 'Approved after 5 rejections', rating: 5, featured: false, caseStudy: true, sortOrder: 1 },
+  { text: 'Best app for testers... I got my app rejected five times and finally, with the help of Fast Testers, today I got production access.', author: 'NIRAV K PATEL', role: 'Creator of ScrinTrim', appName: 'ScrinTrim', category: 'Utilities', result: 'Production access granted', rating: 5, featured: true, caseStudy: false, sortOrder: 5 },
+  { text: 'Great service—I went for the paid and got a great bit of feedback from testing.', author: 'Jason Alexander', role: 'Creator of ConvertQ', appName: 'ConvertQ', rating: 4, featured: false, caseStudy: false, sortOrder: 6 },
+  { text: "Everything went perfectly with the app! Very happy and it's the best service for testing your app.", author: 'PIERRE-ALEXANDRE COTE', role: 'Creator of F1 Insider', appName: 'F1 Insider', rating: 5, featured: false, caseStudy: false, sortOrder: 7 },
+  { text: 'Very helpful application! Successfully passed closed testing and received production approval!', author: 'Agnieszka Piérkowska', role: 'Developer of Bibile', appName: 'Bibile', rating: 5, featured: false, caseStudy: false, sortOrder: 8 },
+  { text: "I just got granted production access for my app! I couldn't have done it without you guys.", author: 'Keval Sakariya', role: 'Developer of Modern QR', appName: 'Modern QR', category: 'Productivity', result: 'Production access granted', rating: 5, featured: false, caseStudy: true, sortOrder: 2 },
+  { text: 'After just 14 days, I was finally able to access production without any issues. The support was impeccable.', author: 'Kevin Corigliano', role: 'Developer of Echo Verse', appName: 'Echo Verse', rating: 5, featured: true, caseStudy: false, sortOrder: 7 },
 ];
 
 export async function seedAll() {
@@ -126,10 +126,17 @@ export async function seedAll() {
       await db.review.create({ data: review });
     }
   } else {
-    for (const review of seedReviews.filter((r) => r.featured)) {
+    for (const review of seedReviews) {
       await db.review.updateMany({
         where: { author: review.author },
-        data: { featured: true, sortOrder: review.sortOrder },
+        data: {
+          featured: review.featured ?? false,
+          caseStudy: review.caseStudy ?? false,
+          sortOrder: review.sortOrder,
+          ...(review.appName ? { appName: review.appName } : {}),
+          ...(review.category ? { category: review.category } : {}),
+          ...(review.result ? { result: review.result } : {}),
+        },
       });
     }
   }

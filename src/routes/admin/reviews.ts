@@ -15,7 +15,7 @@ router.get('/', async (_req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const { text, author, role, rating, visible, featured, sortOrder, link, avatarUrl, appLink, appName } = req.body;
+    const { text, author, role, rating, visible, featured, caseStudy, sortOrder, link, avatarUrl, appLink, appName, category, result } = req.body;
 
     if (!text || !author) {
       return res.status(400).json({ error: 'Text and author are required' });
@@ -33,11 +33,14 @@ router.post('/', async (req, res) => {
         rating: rating ?? 5,
         visible: visible ?? true,
         featured: featured ?? false,
+        caseStudy: caseStudy ?? false,
         sortOrder: sortOrder ?? 0,
         link: link ?? null,
         avatarUrl: avatarUrl ?? null,
         appLink: appLink ?? null,
         appName: appName ?? null,
+        category: category ?? null,
+        result: result ?? null,
       },
     });
 
@@ -64,7 +67,7 @@ router.put('/:id', async (req, res) => {
     const existing = await db.review.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ error: 'Review not found' });
 
-    const { text, author, role, rating, visible, featured, sortOrder, link, avatarUrl, appLink, appName } = req.body;
+    const { text, author, role, rating, visible, featured, caseStudy, sortOrder, link, avatarUrl, appLink, appName, category, result } = req.body;
 
     if (rating !== undefined && (rating < 1 || rating > 5)) {
       return res.status(400).json({ error: 'Rating must be between 1 and 5' });
@@ -79,11 +82,14 @@ router.put('/:id', async (req, res) => {
         ...(rating !== undefined && { rating }),
         ...(visible !== undefined && { visible }),
         ...(featured !== undefined && { featured }),
+        ...(caseStudy !== undefined && { caseStudy }),
         ...(sortOrder !== undefined && { sortOrder }),
         ...(link !== undefined && { link }),
         ...(avatarUrl !== undefined && { avatarUrl }),
         ...(appLink !== undefined && { appLink }),
         ...(appName !== undefined && { appName }),
+        ...(category !== undefined && { category }),
+        ...(result !== undefined && { result }),
       },
     });
 

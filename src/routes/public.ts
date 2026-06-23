@@ -21,12 +21,16 @@ router.get('/', (_req, res) => {
 router.get('/reviews', async (req, res) => {
   try {
     const featured = req.query.featured === 'true';
+    const caseStudy = req.query.caseStudy === 'true';
+    const excludeFeatured = req.query.excludeFeatured === 'true';
     const limit = req.query.limit ? Math.min(50, parseInt(String(req.query.limit), 10)) : undefined;
 
     const reviews = await db.review.findMany({
       where: {
         visible: true,
         ...(featured ? { featured: true } : {}),
+        ...(caseStudy ? { caseStudy: true } : {}),
+        ...(excludeFeatured ? { featured: false } : {}),
       },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
       ...(limit ? { take: limit } : {}),

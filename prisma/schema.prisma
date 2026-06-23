@@ -179,9 +179,12 @@ model Review {
   avatarUrl String?  // URL to reviewer's avatar image
   appLink   String?  // URL to the reviewed app (e.g. Google Play Store)
   appName   String?  // Name of the reviewed app
+  category  String?  // App category for case study cards
+  result    String?  // Outcome headline for case study cards
   rating    Int      @default(5)
   visible   Boolean  @default(true)
   featured  Boolean  @default(false)
+  caseStudy Boolean  @default(false)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
