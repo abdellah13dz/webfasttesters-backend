@@ -2,10 +2,12 @@ import { Router } from 'express';
 import { db } from '../../lib/db.js';
 import {
   clearMailerCache,
-  createSmtpTransport,
+  getEmailTransportInfo,
   MASKED_SMTP_PASSWORD,
   sendSmtpTestEmail,
+  testSmtpConnection,
 } from '../../lib/mailer.js';
+import { isBrevoSmtpHost } from '../../lib/brevo-mailer.js';
 import { resolveSmtpConfig } from '../../lib/smtp-config.js';
 
 const router = Router();
@@ -44,9 +46,12 @@ function shouldUpdatePassword(pass: unknown): pass is string {
 router.get('/', async (_req, res) => {
   try {
     const config = await resolveSmtpConfig();
-    if (!config) return res.json({ config: null });
+    if (!config) return res.json({ config: null, ...getEmailTransportInfo() });
 
-    res.json({ config: serializeConfig(config) });
+    res.json({
+      config: serializeConfig(config),
+      ...getEmailTransportInfo(config.host),
+    });
   } catch (error) {
     console.error('Get SMTP config error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -124,16 +129,24 @@ router.post('/', async (req, res) => {
         });
       }
 
-      const transporter = createSmtpTransport(credentials);
-      try {
-        await transporter.verify();
-        res.json({ success: true, message: 'SMTP connection successful' });
-      } catch (verifyError) {
-        const message = verifyError instanceof Error ? verifyError.message : 'SMTP connection failed';
-        res.status(400).json({ success: false, error: message });
-      } finally {
-        transporter.close();
+      const result = await testSmtpConnection(credentials);
+      if (!result.success) {
+        let error = result.error || 'SMTP connection failed';
+        if (
+          result.transport === 'smtp' &&
+          isBrevoSmtpHost(credentials.host) &&
+          !process.env.BREVO_API_KEY?.trim()
+        ) {
+          error = `${error} For Brevo on cloud hosting, add BREVO_API_KEY (Brevo → Settings → SMTP & API → API keys) and redeploy.`;
+        }
+        return res.status(400).json({ success: false, error });
       }
+
+      const label =
+        result.transport === 'brevo-api'
+          ? 'Brevo API connection successful (HTTPS)'
+          : 'SMTP connection successful';
+      res.json({ success: true, message: label, transport: result.transport });
       return;
     }
 

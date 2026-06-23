@@ -1,10 +1,18 @@
 import nodemailer from 'nodemailer';
+import {
+  formatSmtpError,
+  sendBrevoEmail,
+  shouldUseBrevoApi,
+  verifyBrevoApiKey,
+} from './brevo-mailer.js';
 import { db } from './db.js';
 import {
   getSmtpTransportTimeouts,
   resolveSmtpConfig,
   type ResolvedSmtpConfig,
 } from './smtp-config.js';
+
+export { getEmailTransportInfo } from './brevo-mailer.js';
 
 export const MASKED_SMTP_PASSWORD = '••••••••';
 
@@ -83,6 +91,18 @@ export async function sendMail(options: SendMailOptions): Promise<{ sent: boolea
 
     const { transporter, config } = resolved;
 
+    if (shouldUseBrevoApi(config.host)) {
+      return sendBrevoEmail({
+        to: options.to,
+        subject: options.subject,
+        text: options.text,
+        html: options.html,
+        replyTo: options.replyTo,
+        fromName: config.fromName,
+        fromEmail: config.fromEmail,
+      });
+    }
+
     await transporter.sendMail({
       from: `"${config.fromName}" <${config.fromEmail}>`,
       to: options.to,
@@ -94,7 +114,7 @@ export async function sendMail(options: SendMailOptions): Promise<{ sent: boolea
 
     return { sent: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to send email';
+    const message = formatSmtpError(error);
     console.error('Send mail error:', error);
     return { sent: false, error: message };
   }
@@ -222,10 +242,53 @@ export async function sendNewsletterCampaign(options: {
   return { sent, failed, errors };
 }
 
+export async function testSmtpConnection(
+  config: SmtpCredentials
+): Promise<{ success: boolean; error?: string; transport: 'brevo-api' | 'smtp' }> {
+  if (shouldUseBrevoApi(config.host)) {
+    const result = await verifyBrevoApiKey();
+    return {
+      success: result.ok,
+      error: result.error,
+      transport: 'brevo-api',
+    };
+  }
+
+  const transporter = createSmtpTransport(config);
+  try {
+    await transporter.verify();
+    return { success: true, transport: 'smtp' };
+  } catch (error) {
+    return {
+      success: false,
+      error: formatSmtpError(error),
+      transport: 'smtp',
+    };
+  } finally {
+    transporter.close();
+  }
+}
+
 export async function sendSmtpTestEmail(options: {
   config: SmtpCredentials & { fromName: string; fromEmail: string };
   to: string;
 }): Promise<{ sent: boolean; error?: string }> {
+  if (shouldUseBrevoApi(options.config.host)) {
+    const verified = await verifyBrevoApiKey();
+    if (!verified.ok) {
+      return { sent: false, error: verified.error };
+    }
+
+    return sendBrevoEmail({
+      to: options.to,
+      subject: 'Fast Testers SMTP test',
+      text: 'This is a test email from your Fast Testers email configuration. Sending and receiving are working.',
+      html: '<p>This is a <strong>test email</strong> from your Fast Testers email configuration.</p><p>Sending and receiving are working.</p>',
+      fromName: options.config.fromName,
+      fromEmail: options.config.fromEmail,
+    });
+  }
+
   try {
     const transporter = createSmtpTransport(options.config);
     await transporter.verify();
@@ -239,7 +302,7 @@ export async function sendSmtpTestEmail(options: {
     transporter.close();
     return { sent: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to send test email';
+    const message = formatSmtpError(error);
     console.error('SMTP test email error:', error);
     return { sent: false, error: message };
   }
