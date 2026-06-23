@@ -135,9 +135,9 @@ router.post('/', async (req, res) => {
         if (
           result.transport === 'smtp' &&
           isBrevoSmtpHost(credentials.host) &&
-          !process.env.BREVO_API_KEY?.trim()
+          !process.env.SMTP_KEY?.trim()?.startsWith('xkeysib-')
         ) {
-          error = `${error} For Brevo on cloud hosting, add BREVO_API_KEY (Brevo → Settings → SMTP & API → API keys) and redeploy.`;
+          error = `${error} On Render, set SMTP_KEY to your Brevo API key (xkeysib-...) — not SMTP_PASSWORD or the xsmtpsib relay key.`;
         }
         return res.status(400).json({ success: false, error });
       }

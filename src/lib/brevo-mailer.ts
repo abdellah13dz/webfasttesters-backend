@@ -8,14 +8,30 @@ export interface BrevoSendOptions {
   fromEmail: string;
 }
 
+/** Render and similar hosts block outbound SMTP on ports 25/465/587. */
+export function isCloudHostWithBlockedSmtp(): boolean {
+  return (
+    process.env.RENDER === 'true' ||
+    Boolean(process.env.RENDER_EXTERNAL_URL?.trim()) ||
+    Boolean(process.env.RAILWAY_ENVIRONMENT?.trim()) ||
+    Boolean(process.env.FLY_APP_NAME?.trim()) ||
+    process.env.SMTP_USE_HTTP === 'true'
+  );
+}
+
 function getBrevoApiKey(): string | null {
-  const apiKey = process.env.BREVO_API_KEY?.trim() || process.env.SMTP_KEY?.trim();
+  const apiKey = process.env.SMTP_KEY?.trim() || process.env.BREVO_API_KEY?.trim();
   if (!apiKey) return null;
-  // SMTP relay keys (xsmtpsib-*) do not work with the REST API.
-  if (apiKey.startsWith('xsmtpsib-') && !process.env.BREVO_API_KEY?.trim()) {
-    return null;
-  }
+  // xsmtpsib-* is the SMTP relay password only — not valid for the HTTP API.
+  if (apiKey.startsWith('xsmtpsib-')) return null;
   return apiKey;
+}
+
+function cloudBrevoApiKeyHint(): string {
+  return [
+    'Render blocks SMTP port 587.',
+    'Set SMTP_KEY to your Brevo API key (xkeysib-...) in the server environment — not the xsmtpsib SMTP relay key.',
+  ].join(' ');
 }
 
 export function isBrevoSmtpHost(host?: string | null): boolean {
@@ -24,33 +40,39 @@ export function isBrevoSmtpHost(host?: string | null): boolean {
   return normalized.includes('brevo.com') || normalized.includes('sendinblue.com');
 }
 
-export function shouldUseBrevoApi(_host?: string | null): boolean {
+export function shouldUseBrevoApi(host?: string | null): boolean {
   if (process.env.SMTP_TRANSPORT === 'smtp') return false;
-  return Boolean(getBrevoApiKey());
+  if (getBrevoApiKey()) return true;
+  if (isCloudHostWithBlockedSmtp() && isBrevoSmtpHost(host ?? process.env.SMTP_HOST)) {
+    return true;
+  }
+  return false;
 }
 
 export function getEmailTransportInfo(host?: string | null): {
   transport: 'brevo-api' | 'smtp';
   brevoApiConfigured: boolean;
   brevoHost: boolean;
+  cloudSmtpBlocked: boolean;
 } {
   const brevoHost = isBrevoSmtpHost(host ?? process.env.SMTP_HOST);
   const brevoApiConfigured = Boolean(getBrevoApiKey());
+  const cloudBlocked = isCloudHostWithBlockedSmtp();
   return {
     transport: shouldUseBrevoApi(host) ? 'brevo-api' : 'smtp',
     brevoApiConfigured,
     brevoHost,
+    cloudSmtpBlocked: cloudBlocked,
   };
 }
 
 export async function verifyBrevoApiKey(): Promise<{ ok: boolean; error?: string }> {
   const apiKey = getBrevoApiKey();
   if (!apiKey) {
-    return {
-      ok: false,
-      error:
-        'Brevo HTTP API key is required on cloud hosts that block SMTP port 587. Add BREVO_API_KEY in your backend environment (Brevo → Settings → SMTP & API → API keys).',
-    };
+    const hint = isCloudHostWithBlockedSmtp()
+      ? cloudBrevoApiKeyHint()
+      : 'Set SMTP_KEY to your Brevo API key (xkeysib-...) from Brevo → Settings → SMTP & API → API keys.';
+    return { ok: false, error: hint };
   }
 
   try {
@@ -84,8 +106,9 @@ export async function sendBrevoEmail(
   if (!apiKey) {
     return {
       sent: false,
-      error:
-        'Brevo API key missing. Set BREVO_API_KEY in the backend environment to send email over HTTPS (required on Render free tier).',
+      error: isCloudHostWithBlockedSmtp()
+        ? cloudBrevoApiKeyHint()
+        : 'Set SMTP_KEY to your Brevo API key (xkeysib-...) to send email over HTTPS.',
     };
   }
 
@@ -138,7 +161,7 @@ export async function sendBrevoEmail(
 function formatBrevoApiError(status: number, body: string): string {
   const lower = body.toLowerCase();
   if (status === 401 || lower.includes('unauthorized') || lower.includes('api key')) {
-    return 'Brevo API key is invalid. Create an API key in Brevo → Settings → SMTP & API → API keys and set BREVO_API_KEY.';
+    return 'Brevo API key is invalid. Create an API key in Brevo → Settings → SMTP & API → API keys and set SMTP_KEY (xkeysib-...).';
   }
   if (lower.includes('sender') && lower.includes('not valid')) {
     return 'Sender email is not verified in Brevo. Verify noreply@fasttesters.com in Brevo → Senders & IP.';
@@ -159,7 +182,7 @@ export function formatSmtpError(error: unknown): string {
     return [
       'Connection timeout — your server cannot reach the SMTP host on port 587.',
       'Render and other cloud free tiers block outbound SMTP.',
-      'Fix: add BREVO_API_KEY to the backend (uses HTTPS port 443), or upgrade to a paid instance / whitelist your server IP in Brevo.',
+      'Fix: set SMTP_KEY to your Brevo API key (xkeysib-..., HTTPS port 443), or upgrade to a paid instance / whitelist your server IP in Brevo.',
     ].join(' ');
   }
 

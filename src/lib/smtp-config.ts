@@ -28,7 +28,8 @@ export function getSmtpTransportTimeouts() {
 export function getSmtpConfigFromEnv(): ResolvedSmtpConfig | null {
   const host = process.env.SMTP_HOST?.trim();
   const user = process.env.SMTP_USER?.trim();
-  const pass = process.env.SMTP_KEY?.trim() || process.env.SMTP_PASS?.trim();
+  // Brevo credential — use SMTP_KEY only (not SMTP_PASSWORD / SMTP_PASS).
+  const pass = process.env.SMTP_KEY?.trim();
 
   if (!host || !user || !pass) {
     return null;
