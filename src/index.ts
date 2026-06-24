@@ -25,11 +25,14 @@ import adminStatusRoutes from './routes/admin/status.js';
 import adminSiteSettingsRoutes from './routes/admin/site-settings.js';
 import adminTranslationsRoutes from './routes/admin/translations.js';
 import adminAuditLogRoutes from './routes/admin/audit-log.js';
+import adminUploadsRoutes from './routes/admin/uploads.js';
 import { requireAdmin } from './middleware/requireAdmin.js';
 import { auditAdminMutations } from './middleware/auditAdmin.js';
 import { authRateLimit } from './middleware/rateLimit.js';
 import { getAllowedOrigins } from './lib/cors-origins.js';
 import { syncSmtpConfigFromEnv } from './lib/smtp-config.js';
+import { UPLOAD_ROOT, ensureUploadDirs, isR2Configured } from './lib/uploads.js';
+import { getUploadStorageMode } from './lib/r2.js';
 
 const adminGuard = [requireAdmin, auditAdminMutations];
 
@@ -46,6 +49,12 @@ app.use(
   })
 );
 app.use(express.json());
+
+ensureUploadDirs();
+if (!isR2Configured()) {
+  app.use('/uploads', express.static(UPLOAD_ROOT));
+  console.warn('R2 is not configured — uploads will be stored on local disk under /uploads');
+}
 
 app.use('/api', publicRoutes);
 app.use('/api/admin/auth', authRateLimit, adminAuthRoutes);
@@ -67,6 +76,7 @@ app.use('/api/admin/status', ...adminGuard, adminStatusRoutes);
 app.use('/api/admin/site-settings', ...adminGuard, adminSiteSettingsRoutes);
 app.use('/api/admin/translations', ...adminGuard, adminTranslationsRoutes);
 app.use('/api/admin/audit-log', ...adminGuard, adminAuditLogRoutes);
+app.use('/api/admin/uploads', ...adminGuard, adminUploadsRoutes);
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
@@ -74,6 +84,7 @@ app.get('/health', (_req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Backend server running on http://localhost:${PORT}`);
+  console.log(`Upload storage: ${getUploadStorageMode()}`);
   syncSmtpConfigFromEnv().catch((error) => {
     console.error('SMTP env sync failed:', error);
   });
