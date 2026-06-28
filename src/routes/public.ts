@@ -9,7 +9,7 @@ import {
   DEFAULT_SEO,
   getSiteSetting,
 } from '../lib/site-settings-keys.js';
-import { DEFAULT_SITE_NAVIGATION, SUPPORTED_LOCALES } from '../lib/navigation-defaults.js';
+import { DEFAULT_SITE_NAVIGATION, SUPPORTED_LOCALES, mergeSiteNavigation, type SiteNavigation } from '../lib/navigation-defaults.js';
 import { formRateLimit, analyticsRateLimit } from '../middleware/rateLimit.js';
 
 const router = Router();
@@ -310,7 +310,7 @@ router.get('/site-settings', async (_req, res) => {
       heroStats,
       defaultSeo,
       pageSeoOverrides,
-      navigation,
+      navigation: mergeSiteNavigation(navigation as SiteNavigation),
     });
   } catch (error) {
     console.error('Public site settings error:', error);
