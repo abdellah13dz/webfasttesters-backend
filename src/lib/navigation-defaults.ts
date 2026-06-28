@@ -25,6 +25,7 @@ export const DEFAULT_SITE_NAVIGATION: SiteNavigation = {
     { labelKey: 'header.reviews', path: '/reviews' },
     { labelKey: 'header.pricing', path: '/pricing' },
     { labelKey: 'header.blog', path: '/blog' },
+    { labelKey: 'header.freeTestersCommunity', path: 'https://community.fasttesters.com/' },
   ],
   headerResources: [
     { labelKey: 'header.compare', path: '/compare' },
@@ -63,6 +64,7 @@ export const DEFAULT_SITE_NAVIGATION: SiteNavigation = {
         { labelKey: 'footer.pricing', path: '/pricing' },
         { labelKey: 'footer.compare', path: '/compare' },
         { labelKey: 'footer.submitApp', path: '/submit-app' },
+        { labelKey: 'footer.freeTestersCommunity', path: 'https://community.fasttesters.com/' },
         { labelKey: 'footer.affiliateProgram', path: '/app-testing-referral-program' },
       ],
     },
