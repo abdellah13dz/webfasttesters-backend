@@ -11,6 +11,14 @@ import {
 } from '../lib/site-settings-keys.js';
 import { DEFAULT_SITE_NAVIGATION, SUPPORTED_LOCALES, mergeSiteNavigation, type SiteNavigation } from '../lib/navigation-defaults.js';
 import { formRateLimit, analyticsRateLimit } from '../middleware/rateLimit.js';
+import {
+  extractCity,
+  extractCountry,
+  extractRegion,
+  normalizeReferrer,
+  parseBrowser,
+  parseDevice,
+} from '../lib/analytics-utils.js';
 
 const router = Router();
 
@@ -141,22 +149,78 @@ router.post('/feedback', formRateLimit, async (req, res) => {
 
 router.post('/analytics', analyticsRateLimit, async (req, res) => {
   try {
-    const { eventType, page, element, metadata } = req.body;
+    const {
+      eventType,
+      page,
+      element,
+      metadata,
+      visitorId,
+      sessionId,
+      referrer,
+      language,
+      country: clientCountry,
+      city: clientCity,
+      region: clientRegion,
+    } = req.body;
 
     if (!eventType || !page) {
       return res.status(400).json({ error: 'eventType and page are required' });
     }
 
+    const userAgentHeader = req.headers['user-agent'];
+    const userAgent = Array.isArray(userAgentHeader)
+      ? userAgentHeader[0]
+      : userAgentHeader || null;
+
+    const acceptLanguage = req.headers['accept-language'];
+    const headerLanguage = Array.isArray(acceptLanguage)
+      ? acceptLanguage[0]
+      : acceptLanguage;
+
+    let metadataValue: string | null = null;
+    if (metadata != null) {
+      metadataValue = typeof metadata === 'string' ? metadata : JSON.stringify(metadata);
+    }
+
+    const siteHost = (() => {
+      try {
+        return new URL(process.env.SITE_URL || process.env.FRONTEND_URL || 'https://fasttesters.com')
+          .hostname;
+      } catch {
+        return 'fasttesters.com';
+      }
+    })();
+
+    const country =
+      extractCountry(req) ||
+      (typeof clientCountry === 'string' ? clientCountry.trim().toUpperCase().slice(0, 2) : null);
+    const city = extractCity(req) || (typeof clientCity === 'string' ? clientCity.trim().slice(0, 100) : null);
+    const region =
+      extractRegion(req) || (typeof clientRegion === 'string' ? clientRegion.trim().slice(0, 100) : null);
+
     const event = await db.analyticsEvent.create({
       data: {
-        eventType,
-        page,
-        element: element || null,
-        metadata: metadata ? JSON.stringify(metadata) : null,
+        eventType: String(eventType).slice(0, 50),
+        page: String(page).slice(0, 500),
+        element: element ? String(element).slice(0, 200) : null,
+        metadata: metadataValue,
+        visitorId: visitorId ? String(visitorId).slice(0, 64) : null,
+        sessionId: sessionId ? String(sessionId).slice(0, 64) : null,
+        country,
+        city,
+        region,
+        referrer: normalizeReferrer(typeof referrer === 'string' ? referrer : null, siteHost),
+        userAgent: userAgent ? userAgent.slice(0, 500) : null,
+        device: parseDevice(userAgent),
+        browser: parseBrowser(userAgent),
+        language: (typeof language === 'string' ? language : headerLanguage || null)
+          ?.split(',')[0]
+          ?.trim()
+          .slice(0, 20) || null,
       },
     });
 
-    res.status(201).json(event);
+    res.status(201).json({ id: event.id });
   } catch (error) {
     console.error('Track event error:', error);
     res.status(500).json({ error: 'Internal server error' });

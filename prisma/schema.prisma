@@ -240,7 +240,23 @@ model AnalyticsEvent {
   page      String
   element   String?  // CTA button identifier
   metadata  String?  // JSON string for extra data
+  visitorId String?
+  sessionId String?
+  country   String?
+  city      String?
+  region    String?
+  referrer  String?
+  userAgent String?
+  device    String?  // desktop, mobile, tablet, bot
+  browser   String?
+  language  String?
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([eventType, createdAt])
+  @@index([visitorId, createdAt])
+  @@index([country, createdAt])
+  @@index([page, createdAt])
 }
 
 model SmtpConfig {
