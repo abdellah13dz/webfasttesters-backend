@@ -64,7 +64,7 @@ export const ARTICLES: ArticleSeed[] = [
 </table>
 
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> Automation cannot satisfy Google's closed testing requirement — that needs real people. <a href="/submit-app">Submit your app</a> to get real testers on real devices while your CI handles regression.</p>
+<p><strong>Tip:</strong> Automation cannot satisfy Google's closed testing requirement — that needs real people. <a href="https://app.fasttesters.com/">Submit your app</a> to get real testers on real devices while your CI handles regression.</p>
 </div>
 
 <h2 id="combine">How to combine both</h2>
@@ -100,7 +100,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>There is no fixed number — automate what is stable and high value, and keep humans on judgment-based checks.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>Manual and automated testing are partners, not rivals. Automate the stable, critical logic for speed and safety, and rely on real human testers for the judgment, exploration, and real-device coverage that machines cannot provide. For your launch, remember that only real testers satisfy Google's requirement. <a href="/submit-app">Submit your app</a> to add real-device manual testing to your strategy.</p>`,
+<p>Manual and automated testing are partners, not rivals. Automate the stable, critical logic for speed and safety, and rely on real human testers for the judgment, exploration, and real-device coverage that machines cannot provide. For your launch, remember that only real testers satisfy Google's requirement. <a href="https://app.fasttesters.com/">Submit your app</a> to add real-device manual testing to your strategy.</p>`,
   },
   {
     slug: 'android-beta-testing-best-practices',
@@ -144,7 +144,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>The quality of your beta depends entirely on the quality of your testers. You want real people, on real devices, who will actually open and use the app across the testing window. Fake or inactive accounts do not count toward Google's requirement and produce no useful signal — see <a href="/blog/real-testers-vs-fake-testers">real vs fake testers</a>.</p>
 <p>Aim for diversity: different Android versions, screen sizes, and device tiers, including budget hardware that a large share of users run. Recruit a buffer above the minimum so that inevitable dropouts never pull you below the required count mid-window.</p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> Recruiting reliable testers fast is the hardest part of beta testing. <a href="/submit-app">Submit your app</a> to get real, worldwide testers assigned within about an hour, with retention managed for the full 14 days.</p>
+<p><strong>Tip:</strong> Recruiting reliable testers fast is the hardest part of beta testing. <a href="https://app.fasttesters.com/">Submit your app</a> to get real, worldwide testers assigned within about an hour, with retention managed for the full 14 days.</p>
 </div>
 
 <h2 id="feedback">Make feedback easy</h2>
@@ -185,7 +185,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>It satisfies the testing requirement and hardens your app, but policy review still applies.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>Great Android beta testing is disciplined: the right track, real and diverse testers, effortless feedback, active retention, and fast action on what you learn. Nail these and your beta both improves your app and clears Google's requirement. Want reliable testers without the recruiting grind? <a href="/submit-app">Submit your app</a> today.</p>`,
+<p>Great Android beta testing is disciplined: the right track, real and diverse testers, effortless feedback, active retention, and fast action on what you learn. Nail these and your beta both improves your app and clears Google's requirement. Want reliable testers without the recruiting grind? <a href="https://app.fasttesters.com/">Submit your app</a> today.</p>`,
   },
   {
     slug: 'functional-testing-for-android-apps',
@@ -248,7 +248,7 @@ export const ARTICLES: ArticleSeed[] = [
 <h2 id="pitfalls">Common pitfalls</h2>
 <p>The most frequent mistake is testing only the happy path and shipping bugs that appear the moment a user does something unexpected. Another is testing on a single device, which hides behavior that differs across Android versions and manufacturers. A third is neglecting offline and poor-network conditions — many apps assume perfect connectivity and break badly without it. See <a href="/blog/offline-first-apps-and-closed-testing-best-practices">offline-first testing</a> and <a href="/blog/network-condition-testing-for-android-apps">network condition testing</a>.</p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> Real testers naturally exercise edge cases and diverse devices you would never think to try. <a href="/submit-app">Submit your app</a> to complement your test cases with real-world functional coverage.</p>
+<p><strong>Tip:</strong> Real testers naturally exercise edge cases and diverse devices you would never think to try. <a href="https://app.fasttesters.com/">Submit your app</a> to complement your test cases with real-world functional coverage.</p>
 </div>
 
 <h2 id="launch">How it fits your launch</h2>
@@ -283,7 +283,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>It is your own QA. Closed testing is the separate Google requirement with 12 real testers.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>Functional testing is where quality begins: precise test cases covering happy and unhappy paths, run across real devices and network conditions. Get it right and everything downstream — UI, performance, review, and launch — goes more smoothly. To add real-world functional coverage from actual users, <a href="/submit-app">submit your app</a> today.</p>`,
+<p>Functional testing is where quality begins: precise test cases covering happy and unhappy paths, run across real devices and network conditions. Get it right and everything downstream — UI, performance, review, and launch — goes more smoothly. To add real-world functional coverage from actual users, <a href="https://app.fasttesters.com/">submit your app</a> today.</p>`,
   },
   {
     slug: 'ui-testing-before-publishing',
@@ -329,7 +329,7 @@ export const ARTICLES: ArticleSeed[] = [
 <h2 id="a11y">Accessibility</h2>
 <p>Accessibility is both an ethical obligation and a quality signal. Verify that your app works with TalkBack, that content has meaningful labels, that contrast ratios are sufficient, and that the layout survives large font sizes without breaking. Accessible apps are easier for everyone to use, and testing for accessibility often surfaces general UI problems too. See <a href="/blog/accessibility-testing-before-play-store-launch">accessibility testing before launch</a>.</p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> Real testers on varied devices and settings expose UI problems no emulator will. <a href="/submit-app">Submit your app</a> to get real-device UI feedback before you publish.</p>
+<p><strong>Tip:</strong> Real testers on varied devices and settings expose UI problems no emulator will. <a href="https://app.fasttesters.com/">Submit your app</a> to get real-device UI feedback before you publish.</p>
 </div>
 
 <h2 id="i18n">Languages and direction</h2>
@@ -367,7 +367,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>It is important for users and often reveals general UI issues; test with TalkBack and large fonts.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>UI testing ensures your app looks right for the full diversity of Android — every size, theme, language, and setting. Combine your own checks with real-device feedback to catch what emulators hide. Ready for real-world UI coverage before you publish? <a href="/submit-app">Submit your app</a> today.</p>`,
+<p>UI testing ensures your app looks right for the full diversity of Android — every size, theme, language, and setting. Combine your own checks with real-device feedback to catch what emulators hide. Ready for real-world UI coverage before you publish? <a href="https://app.fasttesters.com/">Submit your app</a> today.</p>`,
   },
   {
     slug: 'performance-testing-guide-for-android-apps',
@@ -413,7 +413,7 @@ export const ARTICLES: ArticleSeed[] = [
 <h2 id="battery">Battery usage</h2>
 <p>Excessive battery drain leads directly to uninstalls and bad reviews. Watch for common culprits: frequent wakeups, unnecessary background work, aggressive location polling, and network calls that never sleep. Test battery impact over a realistic session and confirm the app behaves well when backgrounded. See <a href="/blog/battery-usage-testing-and-play-store-vitals">battery usage testing</a>.</p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> Performance varies enormously across devices. Real testers on a range of real hardware reveal the slow paths your development phone hides. <a href="/submit-app">Submit your app</a> to get diverse real-device coverage.</p>
+<p><strong>Tip:</strong> Performance varies enormously across devices. Real testers on a range of real hardware reveal the slow paths your development phone hides. <a href="https://app.fasttesters.com/">Submit your app</a> to get diverse real-device coverage.</p>
 </div>
 
 <h2 id="network">Network performance</h2>
@@ -454,7 +454,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>Throughout development and especially during closed testing, when vitals begin tracking.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>Performance testing protects both your users and your Play Store standing. Measure startup, responsiveness, memory, battery, and network behavior on real, varied hardware — and watch your Android vitals from the first day of testing. To get performance feedback from real devices, <a href="/submit-app">submit your app</a> today.</p>`,
+<p>Performance testing protects both your users and your Play Store standing. Measure startup, responsiveness, memory, battery, and network behavior on real, varied hardware — and watch your Android vitals from the first day of testing. To get performance feedback from real devices, <a href="https://app.fasttesters.com/">submit your app</a> today.</p>`,
   },
   {
     slug: 'security-testing-for-android-apps',
@@ -540,7 +540,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>Yes. Accurate permissions and data handling are the basis for a correct data safety declaration.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>Security testing protects your users and your standing on Google Play. Check storage, network encryption, authentication, permissions, and third-party SDKs before you publish, and keep your data safety declaration honest. Real-device testing helps surface leaked logs and debug flags — <a href="/submit-app">submit your app</a> to add that coverage today.</p>`,
+<p>Security testing protects your users and your standing on Google Play. Check storage, network encryption, authentication, permissions, and third-party SDKs before you publish, and keep your data safety declaration honest. Real-device testing helps surface leaked logs and debug flags — <a href="https://app.fasttesters.com/">submit your app</a> to add that coverage today.</p>`,
   },
   {
     slug: 'localization-testing-guide-for-android-apps',
@@ -585,7 +585,7 @@ export const ARTICLES: ArticleSeed[] = [
 <h2 id="formats">Formats and units</h2>
 <p>Dates, times, numbers, and currencies vary by locale. A date like 03/04 means March 4th in the US and April 3rd in much of the world, and decimal separators, thousands separators, and currency symbols differ too. Verify that your app formats these according to the user's locale rather than hard-coding one convention. Getting this wrong quietly erodes trust even when the translation itself is perfect.</p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> Native-speaking testers in your target markets catch translation and formatting issues that you never would. <a href="/submit-app">Submit your app</a> to get worldwide testers across regions and languages.</p>
+<p><strong>Tip:</strong> Native-speaking testers in your target markets catch translation and formatting issues that you never would. <a href="https://app.fasttesters.com/">Submit your app</a> to get worldwide testers across regions and languages.</p>
 </div>
 
 <h2 id="rtl">Right-to-left languages</h2>
@@ -623,7 +623,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>If you target RTL markets, yes — broken mirroring is an obvious defect.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>Localization testing turns a translated app into one that feels native everywhere — accurate language, robust layouts, correct formats, proper RTL support, and cultural fit. The most reliable way to validate all of this is with native-speaking testers in your target markets. <a href="/submit-app">Submit your app</a> to get worldwide, real-device testers today.</p>`,
+<p>Localization testing turns a translated app into one that feels native everywhere — accurate language, robust layouts, correct formats, proper RTL support, and cultural fit. The most reliable way to validate all of this is with native-speaking testers in your target markets. <a href="https://app.fasttesters.com/">Submit your app</a> to get worldwide, real-device testers today.</p>`,
   },
   {
     slug: 'regression-testing-for-android-apps',
@@ -668,7 +668,7 @@ export const ARTICLES: ArticleSeed[] = [
 <h2 id="prioritize">How to prioritize</h2>
 <p>You rarely have time to re-test everything by hand, so prioritize by risk and impact. Give the most attention to flows that are business-critical, frequently used, or recently changed, and less to stable, rarely touched corners. Maintaining a documented set of regression cases for your critical paths makes each round faster and more consistent — see how it fits the broader <a href="/blog/app-testing-checklist-before-release">pre-release checklist</a>.</p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> Before shipping an update, run your critical-path regression on real devices. <a href="/submit-app">Submit your app</a> to get real testers who validate your key flows across hardware you do not own.</p>
+<p><strong>Tip:</strong> Before shipping an update, run your critical-path regression on real devices. <a href="https://app.fasttesters.com/">Submit your app</a> to get real testers who validate your key flows across hardware you do not own.</p>
 </div>
 
 <h2 id="automate">Automation and real testers</h2>
@@ -706,6 +706,6 @@ export const ARTICLES: ArticleSeed[] = [
 <p>Especially so — an update's regression can affect all your existing users at once.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>Regression testing keeps quality from eroding as your app evolves. Re-test the change, its neighbors, and your critical flows; automate the stable paths and bring in real testers for the rest. Before every update, validate your key flows on real devices. <a href="/submit-app">Submit your app</a> to add real-device regression coverage today.</p>`,
+<p>Regression testing keeps quality from eroding as your app evolves. Re-test the change, its neighbors, and your critical flows; automate the stable paths and bring in real testers for the rest. Before every update, validate your key flows on real devices. <a href="https://app.fasttesters.com/">Submit your app</a> to add real-device regression coverage today.</p>`,
   },
 ];

@@ -3,7 +3,7 @@
  *
  * Semantic HTML. No <h1> (page renders the title) and no inline colors/styles
  * so the site theme applies. Target 700-1330 words. These are buyer-intent
- * articles that funnel to /submit-app and /pricing.
+ * articles that funnel to https://app.fasttesters.com/ and /pricing.
  */
 import type { ArticleSeed } from './blog-batch-content.js';
 
@@ -55,7 +55,7 @@ export const ARTICLES: ArticleSeed[] = [
 <li>You receive feedback and, after 14 days, apply for production access.</li>
 </ol>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> With FastTesters, testers are typically assigned within about an hour, so your 14-day clock starts the same day. <a href="/submit-app">Submit your app</a> to begin.</p>
+<p><strong>Tip:</strong> With FastTesters, testers are typically assigned within about an hour, so your 14-day clock starts the same day. <a href="https://app.fasttesters.com/">Submit your app</a> to begin.</p>
 </div>
 
 <h2 id="expect">What to expect</h2>
@@ -93,7 +93,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>Quality services provide feedback reports, not just silent installs.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>A Google Play closed testing service removes the hardest part of launching: finding and keeping 12 real testers for 14 days. Choose one that uses genuine testers, manages retention, and provides feedback, and you turn a two-week bottleneck into a smooth, predictable step. Ready to start today? <a href="/submit-app">Submit your app</a>.</p>`,
+<p>A Google Play closed testing service removes the hardest part of launching: finding and keeping 12 real testers for 14 days. Choose one that uses genuine testers, manages retention, and provides feedback, and you turn a two-week bottleneck into a smooth, predictable step. Ready to start today? <a href="https://app.fasttesters.com/">Submit your app</a>.</p>`,
   },
   {
     slug: 'how-much-does-google-play-closed-testing-cost',
@@ -144,7 +144,7 @@ export const ARTICLES: ArticleSeed[] = [
 <h2 id="service">The cost of a testing service</h2>
 <p>A closed testing service charges a one-time fee, usually per testing cycle, in exchange for real testers assigned quickly and retained for the full window. The value is not just the testers but the certainty: a predictable launch date, no reciprocation, managed dropouts, and feedback. See current <a href="/pricing">pricing</a> for specifics.</p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> Think in terms of total cost, not just cash. A modest fee that saves days of effort and protects your launch date is often the cheaper option overall. <a href="/submit-app">Submit your app</a> to see how fast it can be.</p>
+<p><strong>Tip:</strong> Think in terms of total cost, not just cash. A modest fee that saves days of effort and protects your launch date is often the cheaper option overall. <a href="https://app.fasttesters.com/">Submit your app</a> to see how fast it can be.</p>
 </div>
 
 <h2 id="compare">Cost comparison</h2>
@@ -192,7 +192,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>Google's fee is one-time; service fees are typically per testing cycle.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>The true cost of closed testing is measured in both money and time. Google's fees are minimal; the expense is getting and keeping 12 testers. Weigh the hidden time cost of DIY against the modest, predictable fee of a service. If your time and launch date matter, the choice is clear — <a href="/submit-app">submit your app</a> today.</p>`,
+<p>The true cost of closed testing is measured in both money and time. Google's fees are minimal; the expense is getting and keeping 12 testers. Weigh the hidden time cost of DIY against the modest, predictable fee of a service. If your time and launch date matter, the choice is clear — <a href="https://app.fasttesters.com/">submit your app</a> today.</p>`,
   },
   {
     slug: 'hire-android-app-testers',
@@ -248,7 +248,7 @@ export const ARTICLES: ArticleSeed[] = [
 <h2 id="fast">Getting testers fast</h2>
 <p>If your launch date matters, speed is as important as quality. A dedicated service assigns real testers within about an hour, so your 14-day clock starts immediately instead of after days of recruiting. That combination of speed and reliability is why many developers skip DIY entirely.</p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> <a href="/submit-app">Submit your app</a> to get real, worldwide testers assigned quickly, with retention managed for the full window.</p>
+<p><strong>Tip:</strong> <a href="https://app.fasttesters.com/">Submit your app</a> to get real, worldwide testers assigned quickly, with retention managed for the full window.</p>
 </div>
 
 <h2 id="takeaways">Key takeaways</h2>
@@ -284,7 +284,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>Paying for fake installs that do not count and can endanger your account.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>Hiring Android testers the right way means real people, real devices, genuine opt-ins, and reliable retention. Skip the fake-install sellers, and if speed and certainty matter, use a dedicated service. Ready to get real testers fast? <a href="/submit-app">Submit your app</a> today.</p>`,
+<p>Hiring Android testers the right way means real people, real devices, genuine opt-ins, and reliable retention. Skip the fake-install sellers, and if speed and certainty matter, use a dedicated service. Ready to get real testers fast? <a href="https://app.fasttesters.com/">Submit your app</a> today.</p>`,
   },
   {
     slug: 'how-to-choose-a-google-play-testing-service',
@@ -352,7 +352,7 @@ export const ARTICLES: ArticleSeed[] = [
 <h2 id="questions">Questions to ask</h2>
 <p>Before committing, ask: Are your testers real people who opt in through Google Play? Do you guarantee 12+ active testers for the full 14 days? How quickly are testers assigned? Do you provide feedback? What happens if a tester drops out? Clear, confident answers signal a trustworthy provider; evasiveness is a warning sign. For the safety angle, see <a href="/blog/buy-google-play-testers-is-it-safe">is buying testers safe?</a></p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> FastTesters uses real testers, manages retention, assigns fast, and provides feedback. <a href="/submit-app">Submit your app</a> or review <a href="/pricing">pricing</a> to compare.</p>
+<p><strong>Tip:</strong> FastTesters uses real testers, manages retention, assigns fast, and provides feedback. <a href="https://app.fasttesters.com/">Submit your app</a> or review <a href="/pricing">pricing</a> to compare.</p>
 </div>
 
 <h2 id="takeaways">Key takeaways</h2>
@@ -388,7 +388,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>About tester authenticity, retention, speed, feedback, and dropout handling.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>Choosing a testing service is about one thing above all: real testers who make your testing count. Add retention, speed, feedback, and transparency, and avoid the fake-install traps, and you will pick a provider that protects both your launch and your account. Ready to try a service that checks every box? <a href="/submit-app">Submit your app</a> today.</p>`,
+<p>Choosing a testing service is about one thing above all: real testers who make your testing count. Add retention, speed, feedback, and transparency, and avoid the fake-install traps, and you will pick a provider that protects both your launch and your account. Ready to try a service that checks every box? <a href="https://app.fasttesters.com/">Submit your app</a> today.</p>`,
   },
   {
     slug: 'is-buying-google-play-testers-worth-it',
@@ -484,7 +484,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>Real, active testers strengthen your testing signal, which helps — though policy review still applies.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>Buying real testers is worth it when it saves you time you value more than the fee and protects a launch date you care about. For developers without a ready network or facing a deadline, it is often the smartest money spent on the whole launch. Weigh your own situation — and if the math works, <a href="/submit-app">submit your app</a>.</p>`,
+<p>Buying real testers is worth it when it saves you time you value more than the fee and protects a launch date you care about. For developers without a ready network or facing a deadline, it is often the smartest money spent on the whole launch. Weigh your own situation — and if the math works, <a href="https://app.fasttesters.com/">submit your app</a>.</p>`,
   },
   {
     slug: 'google-play-testing-service-vs-diy',
@@ -525,7 +525,7 @@ export const ARTICLES: ArticleSeed[] = [
 <h2 id="service">The service approach</h2>
 <p>A service assigns real testers to your closed track and keeps them active for the full window, for a one-time fee. The upside is speed (testers within about an hour), reliability (managed retention), no reciprocation, and often feedback. The downside is the fee. For most developers on a timeline, the certainty is the point. See <a href="/blog/google-play-closed-testing-service">how a testing service works</a>.</p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> The single biggest DIY risk is your launch date slipping because recruiting is slow. A service removes that risk. <a href="/submit-app">Submit your app</a> to start immediately.</p>
+<p><strong>Tip:</strong> The single biggest DIY risk is your launch date slipping because recruiting is slow. A service removes that risk. <a href="https://app.fasttesters.com/">Submit your app</a> to start immediately.</p>
 </div>
 
 <h2 id="compare">Side-by-side comparison</h2>
@@ -579,7 +579,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>Yes, when you have time, a network, and no deadline.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>DIY and a testing service both lead to production access; they simply trade money for time in opposite directions. If you have time and a network, DIY works. If your time and launch date matter, a service is the smarter choice — and you can always blend the two. Ready to skip the recruiting grind? <a href="/submit-app">Submit your app</a> today.</p>`,
+<p>DIY and a testing service both lead to production access; they simply trade money for time in opposite directions. If you have time and a network, DIY works. If your time and launch date matter, a service is the smarter choice — and you can always blend the two. Ready to skip the recruiting grind? <a href="https://app.fasttesters.com/">Submit your app</a> today.</p>`,
   },
   {
     slug: 'fastest-way-to-get-google-play-production-access',
@@ -626,7 +626,7 @@ export const ARTICLES: ArticleSeed[] = [
 <li><strong>Whether you avoid dropouts</strong> that could reset progress.</li>
 </ul>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> Recruiting is the single biggest time sink. <a href="/submit-app">Submit your app</a> to get 12+ real testers within about an hour and start your clock today, not next week.</p>
+<p><strong>Tip:</strong> Recruiting is the single biggest time sink. <a href="https://app.fasttesters.com/">Submit your app</a> to get 12+ real testers within about an hour and start your clock today, not next week.</p>
 </div>
 
 <h2 id="plan">The fastest path, step by step</h2>
@@ -682,7 +682,7 @@ export const ARTICLES: ArticleSeed[] = [
 <p>Dropping below 12 active testers during the window.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>You cannot shorten the 14-day test, but you can start it today and avoid every self-inflicted delay. Get 12+ real testers immediately, finish forms in parallel, and ship a stable build. That is the fastest route to production access. Want to start your clock right now? <a href="/submit-app">Submit your app</a>.</p>`,
+<p>You cannot shorten the 14-day test, but you can start it today and avoid every self-inflicted delay. Get 12+ real testers immediately, finish forms in parallel, and ship a stable build. That is the fastest route to production access. Want to start your clock right now? <a href="https://app.fasttesters.com/">Submit your app</a>.</p>`,
   },
   {
     slug: 'google-play-testing-for-startups-on-a-deadline',
@@ -723,7 +723,7 @@ export const ARTICLES: ArticleSeed[] = [
 <h2 id="plan">Planning backward from your deadline</h2>
 <p>Work backward from your target launch or demo date. Count back the fixed 14 days, plus a few days for production review, and that tells you the absolute latest your closed test can begin. In practice, you want to start even earlier to leave room for the unexpected. The critical insight: the clock only starts when you have 12 testers, so lining up testers in advance is what makes the schedule real rather than aspirational.</p>
 <div class="callout callout-tip">
-<p><strong>Tip:</strong> Do not let recruiting eat your runway. <a href="/submit-app">Submit your app</a> to get 12+ real testers within about an hour and lock in your start date.</p>
+<p><strong>Tip:</strong> Do not let recruiting eat your runway. <a href="https://app.fasttesters.com/">Submit your app</a> to get 12+ real testers within about an hour and lock in your start date.</p>
 </div>
 
 <h2 id="parallel">Working in parallel</h2>
@@ -765,6 +765,6 @@ export const ARTICLES: ArticleSeed[] = [
 <p>A service can assign real testers within about an hour.</p>
 
 <h2 id="conclusion">Conclusion</h2>
-<p>For startups, the closed testing requirement is manageable once you plan for it: schedule the fixed 14 days, start immediately with real testers, and run everything else in parallel. Handled well, it even produces signal for investors. Protect your runway and your deadline — <a href="/submit-app">submit your app</a> today.</p>`,
+<p>For startups, the closed testing requirement is manageable once you plan for it: schedule the fixed 14 days, start immediately with real testers, and run everything else in parallel. Handled well, it even produces signal for investors. Protect your runway and your deadline — <a href="https://app.fasttesters.com/">submit your app</a> today.</p>`,
   },
 ];
