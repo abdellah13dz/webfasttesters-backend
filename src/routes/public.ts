@@ -11,6 +11,8 @@ import {
 } from '../lib/site-settings-keys.js';
 import { DEFAULT_SITE_NAVIGATION, SUPPORTED_LOCALES, mergeSiteNavigation, type SiteNavigation } from '../lib/navigation-defaults.js';
 import { formRateLimit, analyticsRateLimit } from '../middleware/rateLimit.js';
+import { publicCache } from '../middleware/publicCache.js';
+import { ARTICLE_LIST_SELECT } from '../lib/article-select.js';
 import {
   extractCity,
   extractCountry,
@@ -26,7 +28,7 @@ router.get('/', (_req, res) => {
   res.json({ message: 'Hello, world!' });
 });
 
-router.get('/reviews', async (req, res) => {
+router.get('/reviews', publicCache(600), async (req, res) => {
   try {
     const featured = req.query.featured === 'true';
     const caseStudy = req.query.caseStudy === 'true';
@@ -50,7 +52,7 @@ router.get('/reviews', async (req, res) => {
   }
 });
 
-router.get('/pricing', async (_req, res) => {
+router.get('/pricing', publicCache(600), async (_req, res) => {
   try {
     const plans = await db.pricingPlan.findMany({
       where: { active: true },
@@ -63,16 +65,22 @@ router.get('/pricing', async (_req, res) => {
   }
 });
 
-router.get('/articles', async (req, res) => {
+router.get('/articles', publicCache(300), async (req, res) => {
   try {
     const slug = req.query.slug as string | undefined;
 
-    const where: { status: string; slug?: string } = { status: 'published' };
-    if (slug) where.slug = slug;
+    if (slug) {
+      const article = await db.article.findFirst({
+        where: { status: 'published', slug },
+      });
+      res.json(article ? [article] : []);
+      return;
+    }
 
     const articles = await db.article.findMany({
-      where,
+      where: { status: 'published' },
       orderBy: { createdAt: 'desc' },
+      select: ARTICLE_LIST_SELECT,
     });
 
     res.json(articles);
@@ -149,23 +157,8 @@ router.post('/feedback', formRateLimit, async (req, res) => {
 
 router.post('/analytics', analyticsRateLimit, async (req, res) => {
   try {
-    const {
-      eventType,
-      page,
-      element,
-      metadata,
-      visitorId,
-      sessionId,
-      referrer,
-      language,
-      country: clientCountry,
-      city: clientCity,
-      region: clientRegion,
-    } = req.body;
-
-    if (!eventType || !page) {
-      return res.status(400).json({ error: 'eventType and page are required' });
-    }
+    const rawEvents = Array.isArray(req.body?.events) ? req.body.events : [req.body];
+    const events = rawEvents.slice(0, 25);
 
     const userAgentHeader = req.headers['user-agent'];
     const userAgent = Array.isArray(userAgentHeader)
@@ -177,11 +170,6 @@ router.post('/analytics', analyticsRateLimit, async (req, res) => {
       ? acceptLanguage[0]
       : acceptLanguage;
 
-    let metadataValue: string | null = null;
-    if (metadata != null) {
-      metadataValue = typeof metadata === 'string' ? metadata : JSON.stringify(metadata);
-    }
-
     const siteHost = (() => {
       try {
         return new URL(process.env.SITE_URL || process.env.FRONTEND_URL || 'https://fasttesters.com')
@@ -191,36 +179,73 @@ router.post('/analytics', analyticsRateLimit, async (req, res) => {
       }
     })();
 
-    const country =
-      extractCountry(req) ||
-      (typeof clientCountry === 'string' ? clientCountry.trim().toUpperCase().slice(0, 2) : null);
-    const city = extractCity(req) || (typeof clientCity === 'string' ? clientCity.trim().slice(0, 100) : null);
-    const region =
-      extractRegion(req) || (typeof clientRegion === 'string' ? clientRegion.trim().slice(0, 100) : null);
+    const ids: string[] = [];
 
-    const event = await db.analyticsEvent.create({
-      data: {
-        eventType: String(eventType).slice(0, 50),
-        page: String(page).slice(0, 500),
-        element: element ? String(element).slice(0, 200) : null,
-        metadata: metadataValue,
-        visitorId: visitorId ? String(visitorId).slice(0, 64) : null,
-        sessionId: sessionId ? String(sessionId).slice(0, 64) : null,
-        country,
-        city,
-        region,
-        referrer: normalizeReferrer(typeof referrer === 'string' ? referrer : null, siteHost),
-        userAgent: userAgent ? userAgent.slice(0, 500) : null,
-        device: parseDevice(userAgent),
-        browser: parseBrowser(userAgent),
-        language: (typeof language === 'string' ? language : headerLanguage || null)
-          ?.split(',')[0]
-          ?.trim()
-          .slice(0, 20) || null,
-      },
-    });
+    for (const body of events) {
+      if (!body || typeof body !== 'object') continue;
 
-    res.status(201).json({ id: event.id });
+      const {
+        eventType,
+        page,
+        element,
+        metadata,
+        visitorId,
+        sessionId,
+        referrer,
+        language,
+        country: clientCountry,
+        city: clientCity,
+        region: clientRegion,
+      } = body as Record<string, unknown>;
+
+      if (!eventType || !page) {
+        continue;
+      }
+
+      let metadataValue: string | null = null;
+      if (metadata != null) {
+        metadataValue = typeof metadata === 'string' ? metadata : JSON.stringify(metadata);
+      }
+
+      const country =
+        extractCountry(req) ||
+        (typeof clientCountry === 'string' ? clientCountry.trim().toUpperCase().slice(0, 2) : null);
+      const city =
+        extractCity(req) || (typeof clientCity === 'string' ? clientCity.trim().slice(0, 100) : null);
+      const region =
+        extractRegion(req) ||
+        (typeof clientRegion === 'string' ? clientRegion.trim().slice(0, 100) : null);
+
+      const event = await db.analyticsEvent.create({
+        data: {
+          eventType: String(eventType).slice(0, 50),
+          page: String(page).slice(0, 500),
+          element: element ? String(element).slice(0, 200) : null,
+          metadata: metadataValue,
+          visitorId: visitorId ? String(visitorId).slice(0, 64) : null,
+          sessionId: sessionId ? String(sessionId).slice(0, 64) : null,
+          country,
+          city,
+          region,
+          referrer: normalizeReferrer(typeof referrer === 'string' ? referrer : null, siteHost),
+          userAgent: userAgent ? userAgent.slice(0, 500) : null,
+          device: parseDevice(userAgent),
+          browser: parseBrowser(userAgent),
+          language: (typeof language === 'string' ? language : headerLanguage || null)
+            ?.split(',')[0]
+            ?.trim()
+            .slice(0, 20) || null,
+        },
+      });
+
+      ids.push(event.id);
+    }
+
+    if (ids.length === 0) {
+      return res.status(400).json({ error: 'eventType and page are required' });
+    }
+
+    res.status(201).json({ ids });
   } catch (error) {
     console.error('Track event error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -301,9 +326,10 @@ router.post('/submissions', formRateLimit, async (req, res) => {
   }
 });
 
-router.get('/pages/:slug', async (req, res) => {
+router.get('/pages/:slug', publicCache(300), async (req, res) => {
   try {
-    const page = await db.page.findUnique({ where: { slug: req.params.slug } });
+    const slug = String(req.params.slug);
+    const page = await db.page.findUnique({ where: { slug } });
     if (!page || page.status !== 'published') {
       return res.status(404).json({ error: 'Page not found' });
     }
@@ -314,7 +340,7 @@ router.get('/pages/:slug', async (req, res) => {
   }
 });
 
-router.get('/faq', async (_req, res) => {
+router.get('/faq', publicCache(600), async (_req, res) => {
   try {
     const items = await db.faqItem.findMany({
       where: { published: true },
@@ -327,7 +353,7 @@ router.get('/faq', async (_req, res) => {
   }
 });
 
-router.get('/changelog', async (_req, res) => {
+router.get('/changelog', publicCache(600), async (_req, res) => {
   try {
     const entries = await db.changelogEntry.findMany({
       where: { published: true },
@@ -340,7 +366,7 @@ router.get('/changelog', async (_req, res) => {
   }
 });
 
-router.get('/status', async (_req, res) => {
+router.get('/status', publicCache(120), async (_req, res) => {
   try {
     const [services, incidents] = await Promise.all([
       db.statusService.findMany({
@@ -359,7 +385,7 @@ router.get('/status', async (_req, res) => {
   }
 });
 
-router.get('/site-settings', async (_req, res) => {
+router.get('/site-settings', publicCache(900), async (_req, res) => {
   try {
     const [announcementBanner, heroStats, defaultSeo, pageSeoOverrides, navigation] = await Promise.all([
       getSiteSetting(db, SITE_SETTING_KEYS.ANNOUNCEMENT_BANNER, DEFAULT_ANNOUNCEMENT_BANNER),
@@ -382,7 +408,7 @@ router.get('/site-settings', async (_req, res) => {
   }
 });
 
-router.get('/translations', async (req, res) => {
+router.get('/translations', publicCache(3600), async (req, res) => {
   try {
     const locale = String(req.query.locale || 'en');
     if (!SUPPORTED_LOCALES.includes(locale as (typeof SUPPORTED_LOCALES)[number])) {

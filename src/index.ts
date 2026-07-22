@@ -4,6 +4,7 @@ import { applyDatabaseUrlEnv } from './lib/database-url.js';
 applyDatabaseUrlEnv();
 
 import express from 'express';
+import compression from 'compression';
 import cors from 'cors';
 import publicRoutes from './routes/public.js';
 import adminAuthRoutes from './routes/admin/auth.js';
@@ -48,6 +49,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(compression());
 app.use(express.json());
 
 ensureUploadDirs();
