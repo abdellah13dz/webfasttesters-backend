@@ -20,20 +20,22 @@ export interface SiteNavigation {
 }
 
 const COMMUNITY_URL = 'https://community.fasttesters.com/';
+const FREE_TESTERS_PATH = '/free-testers';
 
 const COMMUNITY_HEADER_LINK: NavLink = {
   labelKey: 'header.freeTestersCommunity',
-  path: COMMUNITY_URL,
+  path: FREE_TESTERS_PATH,
 };
 
 const COMMUNITY_FOOTER_LINK: NavLink = {
   labelKey: 'footer.freeTestersCommunity',
-  path: COMMUNITY_URL,
+  path: FREE_TESTERS_PATH,
 };
 
 function isCommunityLink(link: NavLink): boolean {
   return (
     link.path === COMMUNITY_URL ||
+    link.path === FREE_TESTERS_PATH ||
     link.labelKey === 'header.freeTestersCommunity' ||
     link.labelKey === 'footer.freeTestersCommunity'
   );
@@ -75,18 +77,20 @@ const BASE_SITE_NAVIGATION: SiteNavigation = {
     { labelKey: 'header.reviews', path: '/reviews' },
     { labelKey: 'header.pricing', path: '/pricing' },
     { labelKey: 'header.blog', path: '/blog' },
-    { labelKey: 'header.freeTestersCommunity', path: COMMUNITY_URL },
+    { labelKey: 'header.freeTestersCommunity', path: '/free-testers' },
   ],
   headerResources: [
     { labelKey: 'header.compare', path: '/compare' },
     { labelKey: 'header.caseStudies', path: '/case-studies' },
+    { labelKey: 'header.twelveTesters', path: '/google-play-12-testers' },
+    { labelKey: 'header.fourteenDayTesting', path: '/google-play-14-day-testing' },
+    { labelKey: 'header.testingService', path: '/google-play-testing-service' },
     { labelKey: 'header.androidTesters', path: '/android-app-testers' },
-    { labelKey: 'header.betaTestersGuide', path: '/blog/how-to-find-beta-testers-for-android-apps' },
+    { labelKey: 'header.productionAccess', path: '/google-play-production-access-12-testers' },
+    { labelKey: 'header.checklist', path: '/resources/google-play-checklist' },
     { labelKey: 'header.googlePlayClosedTesting', path: '/blog/google-play-closed-testing' },
     { labelKey: 'header.appRejected', path: '/blog/app-rejected-google-play' },
-    { labelKey: 'header.multiLanguageTesting', path: '/blog/multi-language-app-testing' },
     { labelKey: 'header.setupGuide', path: '/google-play-setup-guide' },
-    { labelKey: 'header.productionAccess', path: '/google-play-production-access-12-testers' },
   ],
   headerSupport: [
     { labelKey: 'footer.helpCenter', path: '/support', icon: 'Headphones' },
@@ -114,7 +118,7 @@ const BASE_SITE_NAVIGATION: SiteNavigation = {
         { labelKey: 'footer.pricing', path: '/pricing' },
         { labelKey: 'footer.compare', path: '/compare' },
         { labelKey: 'footer.submitApp', path: '/submit-app' },
-        { labelKey: 'footer.freeTestersCommunity', path: COMMUNITY_URL },
+        { labelKey: 'footer.freeTestersCommunity', path: '/free-testers' },
         { labelKey: 'footer.affiliateProgram', path: '/app-testing-referral-program' },
       ],
     },
@@ -122,8 +126,15 @@ const BASE_SITE_NAVIGATION: SiteNavigation = {
       titleKey: 'footer.resources',
       links: [
         { labelKey: 'footer.faq', path: '/faq' },
+        { labelKey: 'footer.twelveTesters', path: '/google-play-12-testers' },
+        { labelKey: 'footer.fourteenDayTesting', path: '/google-play-14-day-testing' },
+        { labelKey: 'footer.testingService', path: '/google-play-testing-service' },
         { labelKey: 'footer.androidTesters', path: '/android-app-testers' },
-        { labelKey: 'footer.googlePlayGuide', path: '/blog/publish-app-google-play' },
+        { labelKey: 'footer.productionAccess', path: '/google-play-production-access-12-testers' },
+        { labelKey: 'footer.checklist', path: '/resources/google-play-checklist' },
+        { label: 'Closed Testing Guide', path: '/blog/google-play-closed-testing' },
+        { labelKey: 'footer.appRejected', path: '/blog/app-rejected-google-play' },
+        { labelKey: 'footer.setupGuide', path: '/google-play-setup-guide' },
         { labelKey: 'footer.enterpriseGuide', path: '/guides/enterprise-onboarding' },
       ],
     },

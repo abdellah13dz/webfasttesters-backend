@@ -89,7 +89,7 @@ Google verifies that real users opt into your closed testing track, install your
 
 ## How Fast Testers helps
 
-Fast Testers is a one-time **$15 per app** service with no subscription. You receive 15 professional Android testers, dashboard tracking, reports, and a production access guarantee. Over 1,500 apps published with a 99.9% success rate.
+Fast Testers is a one-time **$15 per app** service with no subscription. You receive 15 professional Android testers for 16 days, dashboard tracking, and reports so you can complete Google’s 12 testers / 14 consecutive days requirement and apply for production access. Google decides approval.
 
 ## FAQ
 

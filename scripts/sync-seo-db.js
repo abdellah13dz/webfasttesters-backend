@@ -8,9 +8,9 @@ const p = new PrismaClient();
 const DEFAULT_SEO = {
   siteUrl: 'https://fasttesters.com',
   title:
-    'Fast Testers | Google Play Closed Testing Service — 12 Testers for 14 Days',
+    'Fast Testers | Google Play Closed Testing — 15 Testers for 16 Days',
   description:
-    'Get Google Play production access with 12 testers for 14 days! Professional Google Play Closed Testing service: 15 quality testers for $15 with production access. Trusted by 1,500+ developers.',
+    'Google requires 12 testers for 14 consecutive days. Fast Testers provides 15 real testers for 16 days for $15 one-time. Google decides production access.',
   keywords:
     'Google Play closed testing, 12 testers for Google Play, Google Play 12 Testers, 14 Day Closed Testing, android app testing, app testing service, App Testing for Google Play Store, google play testing service, mobile app testing, qa testers for apps, Google Play production access, Need testers for Google Play, google play testers, android app testers, Real Android Testers, Google Play App Approval, Google Play Testing Requirements, google play compliance testing, play store testing, app beta testing, google play app rejected testing, Get Your App Ready for Launch, google play 12 testers policy, fast testers, google play console, publish app on playstore, quality testers',
   ogImage: '/logo/android-chrome-512x512.png',

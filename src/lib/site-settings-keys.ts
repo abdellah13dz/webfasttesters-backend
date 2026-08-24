@@ -30,23 +30,24 @@ export interface DefaultSeoSetting {
 
 export const DEFAULT_ANNOUNCEMENT_BANNER: AnnouncementBannerSetting = {
   enabled: true,
-  message: '🚀 Limited time: Get 14 professional testers for just $15/app — 99.9% success rate!',
+  message:
+    '🚀 Google Play closed testing — 15 testers for 16 days for $15/app. Covers Google’s 12 testers / 14 days requirement.',
   ctaText: 'Get Started →',
-  ctaLink: '/submit-app',
+  ctaLink: 'https://app.fasttesters.com/',
 };
 
 export const DEFAULT_HERO_STATS: HeroStatsSetting = {
-  heroCount: 2900,
-  successRate: 99,
-  appsCount: 1500,
-  countriesCount: 120,
+  heroCount: 15,
+  successRate: 15,
+  appsCount: 16,
+  countriesCount: 15,
 };
 
 export const DEFAULT_SEO: DefaultSeoSetting = {
   siteUrl: process.env.SITE_URL || 'https://fasttesters.com',
-  title: 'Fast Testers - Get 12 Testers for Google Play in 48 Hours',
+  title: 'Fast Testers | Google Play Closed Testing — 15 Testers for 16 Days',
   description:
-    'Fast Testers helps Android developers meet Google Play 12-tester requirement in 48 hours. Real testers, fast production access, and guaranteed approval.',
+    'Google requires 12 testers for 14 consecutive days. Fast Testers provides 15 real testers for 16 days for $15 one-time so you can complete closed testing and apply for production access. Google decides approval.',
   keywords:
     'android app testing, google play testers, 12 testers policy, app testing service, beta testing, production access',
   ogImage: '/images/hero/hero-bg.png',
