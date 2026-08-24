@@ -141,24 +141,29 @@ export async function seedAll() {
     }
   }
 
+  const defaultPlanFeatures = JSON.stringify([
+    '15 Professional Testers',
+    '100% Guarantee or Money Back',
+    'Fastest Approval in the Market',
+    'Detailed Testing Reports',
+    '16-Day Testing Period',
+    'Priority Support',
+  ]);
+
   await db.pricingPlan.upsert({
     where: { id: 'default-plan' },
-    update: {},
+    update: {
+      features: defaultPlanFeatures,
+      description: "15 testers for 16 days — covers Google Play’s 12 testers / 14 consecutive days requirement",
+    },
     create: {
       id: 'default-plan',
       name: 'Android Apps',
       price: 15,
       currency: 'USD',
       period: 'one-time',
-      description: "The fastest way to meet Google Play's 12-tester requirement",
-      features: JSON.stringify([
-        '14 Professional Testers',
-        '100% Guarantee or Money Back',
-        'Fastest Approval in the Market',
-        'Detailed Testing Reports',
-        '14-Day Testing Period',
-        'Priority Support',
-      ]),
+      description: "15 testers for 16 days — covers Google Play’s 12 testers / 14 consecutive days requirement",
+      features: defaultPlanFeatures,
       popular: true,
       active: true,
     },
