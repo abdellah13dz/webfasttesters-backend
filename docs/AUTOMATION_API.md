@@ -71,10 +71,16 @@ npx prisma migrate deploy
 # or for local: npx prisma db push
 ```
 
-### 2. Create a credential (plaintext shown once)
+### 2. Create a credential (Render / production)
+
+**Preferred on Render:** set env var `AUTOMATION_API_TOKEN` to a value starting with `ft_auto_…` (generate locally once, or copy the one-time bootstrap log). On `npm start` the server syncs that token into the DB (hashed). The full token is **not** printed when synced from env.
+
+**First deploy with no keys:** if `AUTOMATION_API_TOKEN` is unset and no active key exists, `npm start` auto-creates one key and prints it once in Render logs. Copy it into Make.com, set `AUTOMATION_API_TOKEN` to the same value, then redeploy so restarts stop printing secrets.
+
+**Local CLI (optional):**
 
 ```bash
-npx tsx src/scripts/create-automation-key.ts --name "Make.com Production"
+npm run automation:create-key -- --name "Make.com Production"
 ```
 
 ### 3. Production base URL

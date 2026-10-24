@@ -4,6 +4,7 @@ import { applyDatabaseUrlEnv } from './lib/database-url.js';
 applyDatabaseUrlEnv();
 
 import { createApp } from './app.js';
+import { ensureAutomationCredentialOnStart } from './lib/automation/bootstrap-key.js';
 import { syncSmtpConfigFromEnv } from './lib/smtp-config.js';
 import { isR2Configured } from './lib/uploads.js';
 import { getUploadStorageMode } from './lib/r2.js';
@@ -20,5 +21,11 @@ app.listen(PORT, () => {
   console.log(`Upload storage: ${getUploadStorageMode()}`);
   syncSmtpConfigFromEnv().catch((error) => {
     console.error('SMTP env sync failed:', error);
+  });
+  ensureAutomationCredentialOnStart().catch((error) => {
+    console.error(
+      'Automation key bootstrap failed:',
+      error instanceof Error ? error.message : 'unknown'
+    );
   });
 });

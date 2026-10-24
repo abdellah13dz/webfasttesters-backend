@@ -18,14 +18,13 @@ Store `{{automation_api_token}}` in Make.com **encrypted connection credentials*
 
 ---
 
-## Connection setup
+## Connection setup (Render)
 
-1. Create a key (once):  
-   `npm run automation:create-key -- --name "Make.com Production"`
-2. In Make: **HTTP → Make an API call** (or custom connection) with header auth.
-3. Minimum scopes for full draft workflow: `blog:read`, `blog:draft:create`, `blog:draft:update`.
-4. Rotate: create a new key → update Make connection →  
-   `npm run automation:revoke-key -- --id <oldId>` (or `--prefix ft_auto_…`).
+1. **Preferred:** In Render → Environment, set `AUTOMATION_API_TOKEN` to a secret starting with `ft_auto_` (generate with local `npm run automation:create-key`, or copy the one-time value from logs after first deploy with no keys). Redeploy. The server syncs the hashed key on start.
+2. **First time with no env token:** redeploy/restart once; open Render logs; copy the printed `token:` line into Make; then set `AUTOMATION_API_TOKEN` to that same value and redeploy so it is not printed again.
+3. In Make: **HTTP** module with `Authorization: Bearer {{token}}`.
+4. Scopes: `blog:read`, `blog:draft:create`, `blog:draft:update`.
+5. Rotate: set a new `AUTOMATION_API_TOKEN` → redeploy → update Make → revoke old key (`npm run automation:revoke-key` locally, or via DB).
 
 ---
 
