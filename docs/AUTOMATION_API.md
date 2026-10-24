@@ -77,17 +77,33 @@ npx prisma migrate deploy
 npx tsx src/scripts/create-automation-key.ts --name "Make.com Production"
 ```
 
-### 3. Configure Make.com HTTP module
+### 3. Production base URL
 
-- **URL**: `https://<your-backend-host>/api/automation/v1/blog/drafts`
+**Production (HTTPS):** `https://webapi.fasttesters.com/api/automation/v1`
+
+Confirmed via the public website frontend (`NEXT_PUBLIC_API_URL`). Local: `http://localhost:4000/api/automation/v1`.
+
+### 4. Configure Make.com HTTP module
+
+- **URL**: `https://webapi.fasttesters.com/api/automation/v1/blog/drafts`
 - **Method**: POST
 - **Headers**:
-  - `Authorization`: `Bearer ft_auto_…`
+  - `Authorization`: `Bearer ft_auto_…` (Make connection vault only — never in article body or scenario logs)
   - `Content-Type`: `application/json`
-  - `Idempotency-Key`: `{{unique scenario run id}}` (recommended)
+  - `Idempotency-Key`: `{{unique scenario run id}}` (**required** for safe retries)
   - `X-Request-Id`: optional correlation id
 
 Scopes on new keys: `blog:read`, `blog:draft:create`, `blog:draft:update`.
+
+### 5. Revoke / rotate
+
+```bash
+npm run automation:revoke-key -- --id <keyId>
+# or
+npm run automation:revoke-key -- --prefix ft_auto_xxxxx
+```
+
+Create a new key first, update Make, then revoke the old key.
 
 ---
 

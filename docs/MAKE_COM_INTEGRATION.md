@@ -2,8 +2,8 @@
 
 Validated against the implementation in `src/routes/automation/v1` and OpenAPI at `docs/automation-api-v1.openapi.json`.
 
-**Base URL (production):** `https://<your-backend-host>/api/automation/v1`  
-Replace `<your-backend-host>` with the Render/backend hostname that serves this API (OpenAPI’s `api.fasttesters.com` is a placeholder until confirmed).
+**Base URL (production, HTTPS):** `https://webapi.fasttesters.com/api/automation/v1`  
+**Local:** `http://localhost:4000/api/automation/v1`
 
 **Auth:** Make.com **Connection / custom header** only. Never Admin JWT.
 
@@ -34,7 +34,7 @@ Store `{{automation_api_token}}` in Make.com **encrypted connection credentials*
 | Field | Value |
 |-------|--------|
 | Method | `GET` |
-| URL | `https://<host>/api/automation/v1/blog/posts` |
+| URL | `https://webapi.fasttesters.com/api/automation/v1/blog/posts` |
 | Query | `page=1&limit=20&status=draft` (optional: `category`, `slug`, `title`, `q`) |
 | Headers | `Authorization: Bearer {{token}}` |
 
@@ -61,7 +61,7 @@ List `data[]` is a **summary** (no `content` body).
 | Field | Value |
 |-------|--------|
 | Method | `GET` |
-| URL | `https://<host>/api/automation/v1/blog/categories` |
+| URL | `https://webapi.fasttesters.com/api/automation/v1/blog/categories` |
 | Headers | `Authorization: Bearer {{token}}` |
 
 **Expected `200`:**
@@ -81,7 +81,7 @@ List `data[]` is a **summary** (no `content` body).
 | Field | Value |
 |-------|--------|
 | Method | `GET` |
-| URL | `https://<host>/api/automation/v1/blog/tags` |
+| URL | `https://webapi.fasttesters.com/api/automation/v1/blog/tags` |
 | Headers | `Authorization: Bearer {{token}}` |
 
 **Expected `200`:**
@@ -101,7 +101,7 @@ Tags are **derived** from `seoKeywords` (comma-separated). There is no Tag table
 | Field | Value |
 |-------|--------|
 | Method | `POST` |
-| URL | `https://<host>/api/automation/v1/blog/drafts` |
+| URL | `https://webapi.fasttesters.com/api/automation/v1/blog/drafts` |
 | Headers | `Authorization`, `Content-Type: application/json`, **`Idempotency-Key: {{executionId}}`** |
 
 **Body (required: `title`, `excerpt`, `content`, `category`):**
@@ -122,9 +122,10 @@ Tags are **derived** from `seoKeywords` (comma-separated). There is no Tag table
 ```
 
 - `status` is **always** stored as `draft` (ignored if sent as publish).
-- `featured_image` must be a **public HTTPS URL** (no upload endpoint on this API).
+- `featured_image` must be a **public HTTPS URL** (no upload endpoint on this API). Rejected: `http://`, `javascript:`, `data:`, localhost, private IPs.
 - SEO maps to `seoTitle` / `seoDescription` / `seoKeywords` in CMS.
 - Omit `slug` to auto-slugify from `title`.
+- Concurrent retries with the **same** `Idempotency-Key` return the same draft (`201` + `Idempotency-Replayed`). Different keys + same slug → one winner, others `409`.
 
 **Expected `201`:** `{ "request_id", "data": { …full article, "status": "draft" } }`  
 **Replay:** same `Idempotency-Key` → `201` + header `Idempotency-Replayed: true` (same `data.id`).
@@ -146,7 +147,7 @@ Tags are **derived** from `seoKeywords` (comma-separated). There is no Tag table
 | Field | Value |
 |-------|--------|
 | Method | `PATCH` |
-| URL | `https://<host>/api/automation/v1/blog/drafts/{{draft_id}}` |
+| URL | `https://webapi.fasttesters.com/api/automation/v1/blog/drafts/{{draft_id}}` |
 | Headers | `Authorization`, `Content-Type: application/json` |
 
 **Body (partial):**
@@ -200,11 +201,12 @@ Tags are **derived** from `seoKeywords` (comma-separated). There is no Tag table
 
 | Concern | Behavior |
 |---------|----------|
-| Featured image | Stored as `coverImage` string URL; automation does not upload binaries |
+| Featured image | Stored as `coverImage` HTTPS URL only; no binary upload; SSRF-sensitive hosts rejected |
 | SEO title | `seo_title` → `seoTitle` (max ~70 chars sanitized) |
 | Meta description | `meta_description` → `seoDescription` (~160) |
 | Keywords/tags | Joined into `seoKeywords`; primary = first token on read |
 | Canonical URL | **Not supported** (no CMS field) |
+| Production host | `https://webapi.fasttesters.com` |
 
 ---
 

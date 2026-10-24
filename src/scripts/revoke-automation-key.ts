@@ -45,7 +45,10 @@ async function main() {
 
 main()
   .catch((error) => {
-    console.error(error);
+    console.error(
+      'Failed to revoke automation key:',
+      error instanceof Error ? error.message : 'unknown error'
+    );
     process.exitCode = 1;
   })
   .finally(async () => {

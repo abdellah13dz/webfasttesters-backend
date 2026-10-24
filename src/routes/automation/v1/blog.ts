@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { db } from '../../../lib/db.js';
 import {
   toAutomationArticle,
@@ -13,10 +13,12 @@ import {
   slugify,
 } from '../../../lib/automation/sanitize.js';
 import {
-  findIdempotentResponse,
+  beginIdempotentRequest,
+  completeIdempotentRequest,
   hashRequestBody,
-  storeIdempotentResponse,
+  releaseIdempotentReservation,
 } from '../../../lib/automation/idempotency.js';
+import { validateFeaturedImageUrl } from '../../../lib/automation/validate-image-url.js';
 import { fail, ok } from '../../../lib/automation/response.js';
 import {
   requireAutomationScope,
@@ -144,7 +146,13 @@ function validateDraftPayload(
     data.seoDescription = metaDescription ? sanitizePlainText(metaDescription, 160) : null;
   }
   if (featuredImage !== undefined) {
-    data.coverImage = featuredImage ? sanitizePlainText(featuredImage, 500) : null;
+    if (!featuredImage) {
+      data.coverImage = null;
+    } else {
+      const imageCheck = validateFeaturedImageUrl(featuredImage);
+      if (!imageCheck.ok) return { error: imageCheck.error };
+      data.coverImage = imageCheck.url;
+    }
   }
 
   const hasKeywordInput =
@@ -246,23 +254,43 @@ router.post(
   '/drafts',
   requireAutomationScope('blog:draft:create'),
   async (req: AutomationRequest, res) => {
-    try {
-      const key = req.automationKey!;
-      const idempotencyKeyHeader = req.headers['idempotency-key'];
-      const idempotencyKey =
-        typeof idempotencyKeyHeader === 'string' ? idempotencyKeyHeader.trim().slice(0, 128) : '';
+    const key = req.automationKey!;
+    const idempotencyKeyHeader = req.headers['idempotency-key'];
+    const idempotencyKey =
+      typeof idempotencyKeyHeader === 'string' ? idempotencyKeyHeader.trim().slice(0, 128) : '';
+    const requestHash = hashRequestBody(req.body);
+    let reserved = false;
 
+    try {
       if (idempotencyKey) {
-        const existing = await findIdempotentResponse(key.id, idempotencyKey);
-        if (existing) {
-          const body = JSON.parse(existing.responseBody) as unknown;
+        const begin = await beginIdempotentRequest({
+          apiKeyId: key.id,
+          key: idempotencyKey,
+          requestHash,
+        });
+
+        if (begin.kind === 'replay') {
           res.setHeader('Idempotency-Replayed', 'true');
-          return res.status(existing.responseCode).json(body);
+          return res.status(begin.record.responseCode).json(JSON.parse(begin.record.responseBody));
         }
+
+        if (begin.kind === 'conflict') {
+          return fail(res, 409, begin.message, { field: 'Idempotency-Key' });
+        }
+
+        if (begin.kind === 'in_progress_timeout') {
+          return fail(res, 409, 'A request with this Idempotency-Key is still in progress', {
+            field: 'Idempotency-Key',
+            retryable: true,
+          });
+        }
+
+        reserved = true;
       }
 
       const validation = validateDraftPayload(req.body as DraftInput, 'create');
       if (validation.error || !validation.data) {
+        if (reserved) await releaseIdempotentReservation(key.id, idempotencyKey);
         return fail(res, 400, validation.error ?? 'Invalid payload');
       }
 
@@ -280,6 +308,7 @@ router.post(
       };
 
       if (!data.slug) {
+        if (reserved) await releaseIdempotentReservation(key.id, idempotencyKey);
         return fail(res, 400, 'Unable to derive a valid slug from title');
       }
 
@@ -291,48 +320,106 @@ router.post(
       ]);
 
       if (slugConflict) {
-        return fail(res, 409, 'An article with this slug already exists', {
-          field: 'slug',
-          value: data.slug,
-          existing_id: slugConflict.id,
-        });
+        const conflictPayload = {
+          request_id: res.locals.requestId,
+          error: 'An article with this slug already exists',
+          details: {
+            field: 'slug',
+            value: data.slug,
+            existing_id: slugConflict.id,
+          },
+        };
+        if (reserved) {
+          await completeIdempotentRequest({
+            apiKeyId: key.id,
+            key: idempotencyKey,
+            requestHash,
+            responseCode: 409,
+            responseBody: conflictPayload,
+          });
+        }
+        return res.status(409).json(conflictPayload);
       }
 
       if (titleConflict) {
-        return fail(res, 409, 'An article with this title already exists', {
-          field: 'title',
-          value: data.title,
-          existing_id: titleConflict.id,
-        });
+        const conflictPayload = {
+          request_id: res.locals.requestId,
+          error: 'An article with this title already exists',
+          details: {
+            field: 'title',
+            value: data.title,
+            existing_id: titleConflict.id,
+          },
+        };
+        if (reserved) {
+          await completeIdempotentRequest({
+            apiKeyId: key.id,
+            key: idempotencyKey,
+            requestHash,
+            responseCode: 409,
+            responseBody: conflictPayload,
+          });
+        }
+        return res.status(409).json(conflictPayload);
       }
 
-      const article = await db.article.create({
-        data: {
-          slug: data.slug,
-          title: data.title,
-          description: data.description,
-          content: data.content,
-          category: data.category,
-          coverImage: data.coverImage ?? null,
-          seoTitle: data.seoTitle ?? null,
-          seoDescription: data.seoDescription ?? null,
-          seoKeywords: data.seoKeywords ?? null,
-          readTime: data.readTime ?? '5 min read',
-          status: DRAFT_STATUS,
-          featured: false,
-        },
-      });
+      let article;
+      try {
+        article = await db.article.create({
+          data: {
+            slug: data.slug,
+            title: data.title,
+            description: data.description,
+            content: data.content,
+            category: data.category,
+            coverImage: data.coverImage ?? null,
+            seoTitle: data.seoTitle ?? null,
+            seoDescription: data.seoDescription ?? null,
+            seoKeywords: data.seoKeywords ?? null,
+            readTime: data.readTime ?? '5 min read',
+            status: DRAFT_STATUS,
+            featured: false,
+          },
+        });
+      } catch (error) {
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2002'
+        ) {
+          const existing = await db.article.findUnique({ where: { slug: data.slug } });
+          const conflictPayload = {
+            request_id: res.locals.requestId,
+            error: 'An article with this slug already exists',
+            details: {
+              field: 'slug',
+              value: data.slug,
+              existing_id: existing?.id ?? null,
+            },
+          };
+          if (reserved) {
+            await completeIdempotentRequest({
+              apiKeyId: key.id,
+              key: idempotencyKey,
+              requestHash,
+              responseCode: 409,
+              responseBody: conflictPayload,
+            });
+          }
+          return res.status(409).json(conflictPayload);
+        }
+        throw error;
+      }
 
       const payload = {
         request_id: res.locals.requestId,
         data: toAutomationArticle(article),
       };
 
-      if (idempotencyKey) {
-        await storeIdempotentResponse({
+      if (reserved) {
+        await completeIdempotentRequest({
           apiKeyId: key.id,
           key: idempotencyKey,
-          requestHash: hashRequestBody(req.body),
+          requestHash,
           responseCode: 201,
           responseBody: payload,
         });
@@ -340,7 +427,10 @@ router.post(
 
       return res.status(201).json(payload);
     } catch (error) {
-      console.error('Automation create draft error:', error);
+      if (reserved && idempotencyKey) {
+        await releaseIdempotentReservation(key.id, idempotencyKey);
+      }
+      console.error('Automation create draft error:', error instanceof Error ? error.message : 'unknown');
       return fail(res, 500, 'Failed to create draft');
     }
   }

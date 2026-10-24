@@ -1,10 +1,13 @@
 /**
  * Create a scoped automation API key for Make.com.
  *
- * Usage:
- *   npx tsx src/scripts/create-automation-key.ts --name "Make.com Production"
+ * Production:
+ *   npm run automation:create-key -- --name "Make.com Production"
+ *   Base URL: https://webapi.fasttesters.com/api/automation/v1
  *
- * The plaintext token is printed once. Store it in Make.com credentials only.
+ * The plaintext token is printed once to stdout. Store it only in Make.com
+ * encrypted credentials. Never commit it, paste it into tickets, or log it
+ * from application code.
  */
 import 'dotenv/config';
 import { applyDatabaseUrlEnv } from '../lib/database-url.js';
@@ -55,7 +58,11 @@ async function main() {
 
 main()
   .catch((error) => {
-    console.error(error);
+    // Never dump full error objects — they can include connection strings.
+    console.error(
+      'Failed to create automation key:',
+      error instanceof Error ? error.message : 'unknown error'
+    );
     process.exitCode = 1;
   })
   .finally(async () => {

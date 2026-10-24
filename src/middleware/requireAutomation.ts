@@ -73,16 +73,24 @@ export async function requireAutomation(
       rateLimit: record.rateLimit,
     };
 
-    void db.automationApiKey
-      .update({
-        where: { id: record.id },
-        data: { lastUsedAt: new Date() },
-      })
-      .catch(() => undefined);
+    // Throttle lastUsedAt writes to avoid connection storms under concurrency.
+    const staleMs = 5 * 60_000;
+    if (!record.lastUsedAt || Date.now() - record.lastUsedAt.getTime() > staleMs) {
+      void db.automationApiKey
+        .update({
+          where: { id: record.id },
+          data: { lastUsedAt: new Date() },
+        })
+        .catch(() => undefined);
+    }
 
     next();
   } catch (error) {
-    console.error('Automation auth error:', error);
+    // Do not log bearer tokens or full request objects.
+    console.error(
+      'Automation auth error:',
+      error instanceof Error ? error.message : 'unknown'
+    );
     return fail(res, 500, 'Authentication failed');
   }
 }

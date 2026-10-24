@@ -7,8 +7,8 @@
   },
   "servers": [
     {
-      "url": "https://api.fasttesters.com/api/automation/v1",
-      "description": "Production (adjust host to your backend)"
+      "url": "https://webapi.fasttesters.com/api/automation/v1",
+      "description": "Production (HTTPS)"
     },
     {
       "url": "http://localhost:4000/api/automation/v1",
