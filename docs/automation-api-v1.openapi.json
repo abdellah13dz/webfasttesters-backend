@@ -1,0 +1,181 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FastTesters Automation API",
+    "version": "1.0.0",
+    "description": "Scoped Make.com automation API for FastTesters blog drafts. Does not replace the Admin CMS. Draft create/update only — no publishing."
+  },
+  "servers": [
+    {
+      "url": "https://api.fasttesters.com/api/automation/v1",
+      "description": "Production (adjust host to your backend)"
+    },
+    {
+      "url": "http://localhost:4000/api/automation/v1",
+      "description": "Local development"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "AutomationBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "ft_auto_… token from create-automation-key.ts"
+      },
+      "AutomationApiKey": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Api-Key"
+      }
+    },
+    "schemas": {
+      "Article": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "title": { "type": "string" },
+          "slug": { "type": "string" },
+          "excerpt": { "type": "string" },
+          "content": { "type": "string" },
+          "seo_title": { "type": ["string", "null"] },
+          "meta_description": { "type": ["string", "null"] },
+          "primary_keyword": { "type": ["string", "null"] },
+          "secondary_keywords": { "type": "array", "items": { "type": "string" } },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "category": { "type": "string" },
+          "featured_image": { "type": ["string", "null"] },
+          "status": { "type": "string", "enum": ["draft", "published", "hidden"] },
+          "read_time": { "type": "string" },
+          "featured": { "type": "boolean" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "request_id": { "type": "string" },
+          "error": { "type": "string" },
+          "details": { "type": "object", "additionalProperties": true }
+        }
+      }
+    }
+  },
+  "security": [{ "AutomationBearer": [] }, { "AutomationApiKey": [] }],
+  "paths": {
+    "/health": {
+      "get": {
+        "security": [],
+        "summary": "Automation API health",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/openapi.json": {
+      "get": {
+        "security": [],
+        "summary": "OpenAPI document",
+        "responses": { "200": { "description": "OpenAPI JSON" } }
+      }
+    },
+    "/blog/posts": {
+      "get": {
+        "summary": "List articles",
+        "parameters": [
+          { "name": "page", "in": "query", "schema": { "type": "integer", "default": 1 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 20, "maximum": 100 } },
+          { "name": "status", "in": "query", "schema": { "type": "string" } },
+          { "name": "category", "in": "query", "schema": { "type": "string" } },
+          { "name": "slug", "in": "query", "schema": { "type": "string" } },
+          { "name": "title", "in": "query", "schema": { "type": "string" } },
+          { "name": "q", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Paginated article summaries" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Missing blog:read scope" }
+        }
+      }
+    },
+    "/blog/posts/{id}": {
+      "get": {
+        "summary": "Get article by id or slug",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Full article" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/blog/drafts": {
+      "post": {
+        "summary": "Create unpublished draft",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Replay-safe create within 24h"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "excerpt", "content", "category"],
+                "properties": {
+                  "title": { "type": "string" },
+                  "slug": { "type": "string" },
+                  "excerpt": { "type": "string" },
+                  "content": { "type": "string" },
+                  "seo_title": { "type": "string" },
+                  "meta_description": { "type": "string" },
+                  "primary_keyword": { "type": "string" },
+                  "secondary_keywords": { "type": "array", "items": { "type": "string" } },
+                  "tags": { "type": "array", "items": { "type": "string" } },
+                  "category": { "type": "string" },
+                  "featured_image": { "type": "string" },
+                  "read_time": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Draft created (status always draft)" },
+          "400": { "description": "Validation error" },
+          "409": { "description": "Duplicate title or slug" }
+        }
+      }
+    },
+    "/blog/drafts/{id}": {
+      "patch": {
+        "summary": "Update unpublished draft only",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": { "description": "Updated draft" },
+          "403": { "description": "Not a draft / publish blocked" },
+          "404": { "description": "Not found" }
+        }
+      }
+    },
+    "/blog/categories": {
+      "get": {
+        "summary": "List distinct categories",
+        "responses": { "200": { "description": "Categories" } }
+      }
+    },
+    "/blog/tags": {
+      "get": {
+        "summary": "List keyword tags derived from seoKeywords",
+        "responses": { "200": { "description": "Tags" } }
+      }
+    }
+  }
+}

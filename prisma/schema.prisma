@@ -289,3 +289,38 @@ model AppSubmission {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+/// Dedicated Make.com / automation credentials (scoped; never full admin).
+model AutomationApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  keyPrefix  String
+  keyHash    String    @unique
+  /// JSON array of scopes, e.g. ["blog:read","blog:draft:create","blog:draft:update"]
+  scopes     String    @default("[\"blog:read\",\"blog:draft:create\",\"blog:draft:update\"]")
+  active     Boolean   @default(true)
+  /// Max requests per rolling minute for this key
+  rateLimit  Int       @default(60)
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  idempotencyKeys AutomationIdempotencyKey[]
+}
+
+model AutomationIdempotencyKey {
+  id           String   @id @default(cuid())
+  apiKeyId     String
+  key          String
+  requestHash  String?
+  responseCode Int
+  responseBody String
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  apiKey AutomationApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  @@unique([apiKeyId, key])
+  @@index([expiresAt])
+}

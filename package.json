@@ -7,11 +7,15 @@
     "postinstall": "prisma generate",
     "build": "prisma generate && tsc",
     "start": "node dist/index.js",
+    "test": "tsx --test src/lib/automation/*.test.ts",
+    "test:integration": "tsx --test src/routes/automation/v1/blog.integration.test.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "db:seed": "tsx src/scripts/seed.ts"
+    "db:seed": "tsx src/scripts/seed.ts",
+    "automation:create-key": "tsx src/scripts/create-automation-key.ts",
+    "automation:revoke-key": "tsx src/scripts/revoke-automation-key.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1075.0",
