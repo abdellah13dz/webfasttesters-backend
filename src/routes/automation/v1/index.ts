@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import blogRoutes from './blog.js';
+import uploadsRoutes from './uploads.js';
 import {
   auditAutomationMutations,
   automationRateLimit,
@@ -48,5 +49,6 @@ router.get('/openapi.json', (_req, res) => {
 
 router.use(requireAutomation, automationRateLimit, auditAutomationMutations);
 router.use('/blog', blogRoutes);
+router.use('/uploads', uploadsRoutes);
 
 export default router;

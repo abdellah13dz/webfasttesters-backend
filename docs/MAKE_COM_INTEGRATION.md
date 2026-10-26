@@ -95,6 +95,23 @@ Tags are **derived** from `seoKeywords` (comma-separated). There is no Tag table
 
 ---
 
+## HTTP module — Upload image (optional, before create draft)
+
+| Field | Value |
+|-------|--------|
+| Method | `POST` |
+| URL | `https://webapi.fasttesters.com/api/automation/v1/uploads/image` |
+| Headers | `Authorization: Bearer {{token}}` (key must include `media:upload`) |
+| Body | Multipart form-data, field name **`file`** |
+| Max size | 5 MB |
+| Types | JPEG, PNG, WebP, GIF, safe SVG |
+
+**Success `201`:** use `url` (e.g. `https://assets.fasttesters.com/blog/…`) as `featured_image` on draft create.  
+**Retries:** not idempotent — each success creates a new object.  
+**Grant scope:** `npm run automation:grant-scope -- --prefix <prefix> --scope media:upload`
+
+---
+
 ## HTTP module 4 — Create draft
 
 | Field | Value |

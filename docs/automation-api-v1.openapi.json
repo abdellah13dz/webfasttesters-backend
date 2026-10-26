@@ -176,6 +176,49 @@
         "summary": "List keyword tags derived from seoKeywords",
         "responses": { "200": { "description": "Tags" } }
       }
+    },
+    "/uploads/image": {
+      "post": {
+        "summary": "Upload a blog image to Cloudflare R2 (or local fallback)",
+        "description": "Requires media:upload. multipart/form-data field name: file. Max 5MB. Server generates blog/ object keys. Not idempotent — retries create a new object.",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Bearer ft_auto_…"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "JPEG, PNG, WebP, GIF, or safe SVG"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Uploaded; url is public HTTPS (e.g. https://assets.fasttesters.com/blog/…)"
+          },
+          "400": { "description": "Validation / missing file / unsafe content" },
+          "401": { "description": "Missing or invalid automation key" },
+          "403": { "description": "Missing media:upload scope" },
+          "413": { "description": "File exceeds 5MB" },
+          "500": { "description": "Storage failure" }
+        }
+      }
     }
   }
 }

@@ -2,6 +2,7 @@ export const AUTOMATION_SCOPES = [
   'blog:read',
   'blog:draft:create',
   'blog:draft:update',
+  'media:upload',
 ] as const;
 
 export type AutomationScope = (typeof AUTOMATION_SCOPES)[number];

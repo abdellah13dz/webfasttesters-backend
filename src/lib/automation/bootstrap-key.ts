@@ -30,16 +30,15 @@ export async function ensureAutomationCredentialOnStart(): Promise<void> {
     where: { active: true, revokedAt: null },
   });
 
-  if (activeCount > 0 && !forceBootstrap) {
-    console.log(
-      `[automation] ${activeCount} active API key(s) present. Set AUTOMATION_API_TOKEN on Render to sync a known secret without CLI.`
-    );
+  // Force a NEW printable key even when orphans exist (lost plaintext from tests/old boots).
+  if (forceBootstrap) {
+    await createAndPrintBootstrapKey('Make.com (forced bootstrap)');
     return;
   }
 
-  if (forceBootstrap && activeCount > 0) {
-    console.warn(
-      '[automation] AUTOMATION_BOOTSTRAP_ON_START=true but active keys already exist — skipping new key creation.'
+  if (activeCount > 0) {
+    console.log(
+      `[automation] ${activeCount} active API key(s) present. Set AUTOMATION_API_TOKEN on Render to sync a known secret, or set AUTOMATION_BOOTSTRAP_ON_START=true once to print a new key.`
     );
     return;
   }

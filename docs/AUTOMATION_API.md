@@ -54,10 +54,59 @@ OpenAPI: `GET /api/automation/v1/openapi.json` (unauthenticated)
 | PATCH | `/blog/drafts/:id` | `blog:draft:update` | Drafts only; publish blocked |
 | GET | `/blog/categories` | `blog:read` | Distinct categories |
 | GET | `/blog/tags` | `blog:read` | Derived from `seoKeywords` |
+| POST | `/uploads/image` | `media:upload` | Multipart image → R2 `blog/` (not granted by default) |
 
 Security features: hashed API keys (`SHA-256`), scoped auth, per-key rate limit, request IDs (`X-Request-Id`), input sanitization, idempotency (`Idempotency-Key` on create), audit logs (`userEmail` = `automation:<name>`).
 
-**No** publish endpoint. **No** access to passwords, SMTP secrets, payments, or unrelated admin routes.
+**No** publish endpoint. **No** access to passwords, SMTP secrets, payments, R2 credentials, or unrelated admin routes. Admin JWT is **not** accepted.
+
+---
+
+## Image upload (`POST /uploads/image`)
+
+**URL:** `https://webapi.fasttesters.com/api/automation/v1/uploads/image`  
+**Auth:** `Authorization: Bearer ft_auto_…`  
+**Scope:** `media:upload` (grant explicitly — not included in default key scopes)
+
+```bash
+npm run automation:grant-scope -- --prefix ft_auto_usPRENt4 --scope media:upload
+```
+
+**Request:** `multipart/form-data` with field name **`file`** (same as Admin).  
+**Max size:** 5,242,880 bytes (5 MB) → HTTP `413` if larger.  
+**Types:** JPEG, PNG, WebP, GIF, SVG (SVG with scripts/event handlers rejected). Content is checked via magic bytes (not client MIME alone).  
+**Storage:** Reuses existing `storeUploadedFile` → Cloudflare R2 when configured; public URL from `R2_PUBLIC_URL` (production: `https://assets.fasttesters.com/blog/…`). Folder locked to `blog/`.
+
+**Make.com HTTP module:**
+
+| Field | Value |
+|-------|--------|
+| Method | POST |
+| URL | `https://webapi.fasttesters.com/api/automation/v1/uploads/image` |
+| Headers | `Authorization: Bearer {{token}}` |
+| Body type | Multipart / form-data |
+| File field | `file` |
+
+**Success `201`:**
+
+```json
+{
+  "request_id": "…",
+  "url": "https://assets.fasttesters.com/blog/cover-….webp",
+  "key": "blog/cover-….webp",
+  "filename": "cover-….webp",
+  "storage": "r2",
+  "contentType": "image/webp",
+  "size": 123456,
+  "data": { "url": "https://assets.fasttesters.com/blog/cover-….webp", "key": "blog/…", "…": "…" }
+}
+```
+
+Use `url` as `featured_image` on `POST /blog/drafts`.
+
+**Errors:** `401` auth · `403` missing scope · `400` validation · `413` too large · `500` storage failure.
+
+**Retries / idempotency:** Uploads are **not** idempotent. Each successful request creates a **new** R2 object (unique server filename). On Make timeouts, prefer checking whether you already stored a URL in the scenario; avoid blind re-upload loops. Do not send draft `Idempotency-Key` semantics for multipart (body hashing is JSON-oriented).
 
 ---
 

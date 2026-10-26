@@ -127,6 +127,11 @@ export function auditAutomationMutations(
     return next();
   }
 
+  // Upload route writes a dedicated media audit entry with object metadata.
+  if (req.originalUrl.includes('/uploads/')) {
+    return next();
+  }
+
   const key = req.automationKey;
   const entityId = typeof req.params.id === 'string' ? req.params.id : null;
 
