@@ -4,10 +4,18 @@ import { hasScope, parseScopes } from './scopes.js';
 
 describe('scopes', () => {
   it('parses valid scopes and rejects unknown ones', () => {
-    const scopes = parseScopes('["blog:read","blog:draft:create","media:upload","admin:all"]');
-    assert.deepEqual(scopes, ['blog:read', 'blog:draft:create', 'media:upload']);
+    const scopes = parseScopes(
+      '["blog:read","blog:draft:create","media:upload","blog:publish","admin:all"]'
+    );
+    assert.deepEqual(scopes, [
+      'blog:read',
+      'blog:draft:create',
+      'media:upload',
+      'blog:publish',
+    ]);
     assert.equal(hasScope(scopes, 'blog:read'), true);
     assert.equal(hasScope(scopes, 'media:upload'), true);
+    assert.equal(hasScope(scopes, 'blog:publish'), true);
     assert.equal(hasScope(scopes, 'blog:draft:update'), false);
   });
 

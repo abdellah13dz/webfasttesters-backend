@@ -219,6 +219,94 @@
           "500": { "description": "Storage failure" }
         }
       }
+    },
+    "/blog/drafts/{id}/publish": {
+      "post": {
+        "summary": "Publish an existing draft (same article ID)",
+        "description": "Requires blog:publish. Idempotency-Key strongly recommended (not HTTP-mandatory). Already-published returns safe success. Sets publishedAt exactly once on first publish.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Strongly recommended for Make.com retries. Same key replays; different payload → 409.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Published (or already published)" },
+          "400": { "description": "Missing required publish fields" },
+          "403": { "description": "Not a draft / hidden / missing scope" },
+          "404": { "description": "Not found" },
+          "409": { "description": "Idempotency conflict or revision concurrency (retryable)" }
+        }
+      }
+    },
+    "/blog/published/{id}": {
+      "patch": {
+        "summary": "Update a published article without unpublishing",
+        "description": "Requires blog:update_published. Partial update. Saves a revision first under PostgreSQL row lock. Use expected_updated_at / version for optimistic concurrency. Does not reset publishedAt (legacy null stays null). Idempotency-Key strongly recommended.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Strongly recommended. Same key+payload replay; different payload → 409.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Updated; status remains published" },
+          "403": { "description": "Not published / status change blocked / missing scope" },
+          "409": { "description": "Stale version, concurrent update, idempotency conflict, or revision conflict (retryable where noted)" }
+        }
+      }
+    },
+    "/blog/articles/{id}/revisions": {
+      "get": {
+        "summary": "List article revisions",
+        "description": "Requires blog:revisions:read",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Revision list" } }
+      }
+    },
+    "/blog/articles/{id}/revisions/{revisionId}": {
+      "get": {
+        "summary": "Get one revision snapshot",
+        "description": "Requires blog:revisions:read",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "revisionId", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "Revision + snapshot" }, "404": { "description": "Not found" } }
+      }
+    },
+    "/blog/articles/{id}/revisions/{revisionId}/rollback": {
+      "post": {
+        "summary": "Roll back published article to a revision",
+        "description": "Requires blog:rollback. Creates safety revision, restores content, keeps published + current slug. Strongly recommend Idempotency-Key: same key+params replay; same key+different article/revision → 409; failed ops release reservation.",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "revisionId", "in": "path", "required": true, "schema": { "type": "string" } },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": false,
+            "description": "Strongly recommended. Not HTTP-mandatory; without it retries may create duplicate safety revisions.",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Restored (or Idempotency-Replayed)" },
+          "403": { "description": "Not published / missing scope" },
+          "404": { "description": "Not found" },
+          "409": { "description": "Idempotency-Key reused with different params, or revision concurrency conflict (retryable)" }
+        }
+      }
     }
   }
 }

@@ -10,6 +10,7 @@
     "test": "tsx --test src/lib/automation/*.test.ts",
     "test:uploads": "tsx --test src/routes/automation/v1/uploads.test.ts",
     "test:integration": "tsx --test src/routes/automation/v1/blog.integration.test.ts src/routes/automation/v1/uploads.test.ts",
+    "test:publish": "tsx --test src/routes/automation/v1/publish.integration.test.ts",
     "automation:grant-scope": "tsx src/scripts/grant-automation-scope.ts",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",

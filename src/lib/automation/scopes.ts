@@ -3,6 +3,10 @@ export const AUTOMATION_SCOPES = [
   'blog:draft:create',
   'blog:draft:update',
   'media:upload',
+  'blog:publish',
+  'blog:update_published',
+  'blog:revisions:read',
+  'blog:rollback',
 ] as const;
 
 export type AutomationScope = (typeof AUTOMATION_SCOPES)[number];

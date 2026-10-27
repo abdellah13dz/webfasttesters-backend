@@ -1,5 +1,6 @@
 import type { Article } from '@prisma/client';
 import { parseKeywordList } from './sanitize.js';
+import { buildPublicArticleUrl } from './public-url.js';
 
 /** Make.com-facing article DTO mapped onto the existing Article schema. */
 export interface AutomationArticleDto {
@@ -20,6 +21,10 @@ export interface AutomationArticleDto {
   featured: boolean;
   created_at: string;
   updated_at: string;
+  published_at: string | null;
+  public_url: string;
+  /** Optimistic concurrency token (ISO updatedAt). */
+  version: string;
 }
 
 export function toAutomationArticle(article: Article): AutomationArticleDto {
@@ -43,6 +48,9 @@ export function toAutomationArticle(article: Article): AutomationArticleDto {
     featured: article.featured,
     created_at: article.createdAt.toISOString(),
     updated_at: article.updatedAt.toISOString(),
+    published_at: article.publishedAt ? article.publishedAt.toISOString() : null,
+    public_url: buildPublicArticleUrl(article.slug),
+    version: article.updatedAt.toISOString(),
   };
 }
 

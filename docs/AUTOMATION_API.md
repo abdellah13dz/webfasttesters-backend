@@ -55,10 +55,115 @@ OpenAPI: `GET /api/automation/v1/openapi.json` (unauthenticated)
 | GET | `/blog/categories` | `blog:read` | Distinct categories |
 | GET | `/blog/tags` | `blog:read` | Derived from `seoKeywords` |
 | POST | `/uploads/image` | `media:upload` | Multipart image → R2 `blog/` (not granted by default) |
+| POST | `/blog/drafts/:id/publish` | `blog:publish` | Publish existing draft (same ID) |
+| PATCH | `/blog/published/:id` | `blog:update_published` | Update published; never unpublishes |
+| GET | `/blog/articles/:id/revisions` | `blog:revisions:read` | List revisions |
+| GET | `/blog/articles/:id/revisions/:revisionId` | `blog:revisions:read` | Revision snapshot |
+| POST | `/blog/articles/:id/revisions/:revisionId/rollback` | `blog:rollback` | Restore revision; stays published |
 
-Security features: hashed API keys (`SHA-256`), scoped auth, per-key rate limit, request IDs (`X-Request-Id`), input sanitization, idempotency (`Idempotency-Key` on create), audit logs (`userEmail` = `automation:<name>`).
+Security features: hashed API keys (`SHA-256`), scoped auth, per-key rate limit, request IDs (`X-Request-Id`), input sanitization, idempotency (`Idempotency-Key` on create/publish/update/**rollback**), article revisions, audit logs (`userEmail` = `automation:<name>`).
 
-**No** publish endpoint. **No** access to passwords, SMTP secrets, payments, R2 credentials, or unrelated admin routes. Admin JWT is **not** accepted.
+**No** access to passwords, SMTP secrets, payments, R2 credentials, or unrelated admin routes. Admin JWT is **not** accepted. New publish scopes are **not** granted by default.
+
+---
+
+## Publishing & published updates
+
+**Public URL convention:** `https://fasttesters.com/blog/{slug}` (from `SITE_URL` / `FRONTEND_URL`).  
+**Verification:** after publish/update, the API re-queries with the same filter as public `GET /api/articles?slug=` (`status=published`).
+
+### Grant scopes (explicit)
+
+```bash
+npm run automation:grant-scope -- --prefix ft_auto_usPRENt4 --scope blog:publish
+npm run automation:grant-scope -- --prefix ft_auto_usPRENt4 --scope blog:update_published
+npm run automation:grant-scope -- --prefix ft_auto_usPRENt4 --scope blog:revisions:read
+npm run automation:grant-scope -- --prefix ft_auto_usPRENt4 --scope blog:rollback
+```
+
+### Migration (required before using these endpoints)
+
+```bash
+npx prisma migrate deploy
+# migration: 20261027120000_article_publish_revisions
+# adds Article.publishedAt + ArticleRevision table
+```
+
+Do not apply to production until approved.
+
+### Publish draft
+
+```http
+POST /api/automation/v1/blog/drafts/{id}/publish
+Authorization: Bearer ft_auto_…
+Idempotency-Key: publish-{executionId}
+```
+
+Returns `article_id`, `slug`, `status=published`, `published_at`, `public_url`, `public_accessible`, `revision_id`.  
+Already published → safe `200` with `already_published: true` (no duplicate).  
+Sets `publishedAt` **exactly once** on first Automation publish (does not invent historical dates).
+
+### Update published
+
+```http
+PATCH /api/automation/v1/blog/published/{id}
+Authorization: Bearer ft_auto_…
+Idempotency-Key: update-{executionId}
+
+{
+  "content": "<p>Improved body</p>",
+  "expected_updated_at": "2026-10-27T10:00:00.000Z"
+}
+```
+
+Partial update; omitted fields unchanged. `status` cannot leave `published`. Slug unchanged unless explicitly sent. Saves a revision **before** applying changes (under a PostgreSQL `SELECT … FOR UPDATE` on the article row). Stale `expected_updated_at` / `version` / `If-Match` / concurrent writer → `409` (retryable). Ordinary updates **do not** set or reset `publishedAt` (legacy `null` stays `null`).
+
+### Revisions & rollback
+
+1. `GET …/blog/articles/{id}/revisions`
+2. `GET …/blog/articles/{id}/revisions/{revisionId}`
+3. `POST …/blog/articles/{id}/revisions/{revisionId}/rollback` — creates safety revision, restores snapshot content, **keeps published** and **current slug**.
+
+```http
+POST /api/automation/v1/blog/articles/{id}/revisions/{revisionId}/rollback
+Authorization: Bearer ft_auto_…
+Idempotency-Key: rollback-{executionId}
+```
+
+### Idempotency-Key (Make.com)
+
+| Operation | Idempotency-Key | Behavior |
+|-----------|-----------------|----------|
+| `POST /blog/drafts` | **Strongly recommended** | Same key → replay; different body → `409` |
+| `POST …/publish` | **Strongly recommended** | Same key → replay; not HTTP-mandatory |
+| `PATCH …/published/:id` | **Strongly recommended** | Same key → replay; different payload → `409` |
+| `POST …/rollback` | **Strongly recommended** | Same key + same article/revision → replay (no extra safety revision); same key + different article or revision → `409`; failed ops (e.g. `404`) **release** the reservation so a corrected retry can use the same key |
+| `POST /uploads/image` | Not supported | Each success creates a new object |
+
+Without `Idempotency-Key`, write endpoints still run, but Make timeouts/retries may duplicate revisions or re-apply mutations. Prefer a unique key per logical scenario step (`publish-{executionId}`, `update-{executionId}`, `rollback-{executionId}`). On `409` with `retryable: true` (concurrent update / revision conflict / in-progress key), wait briefly and retry with the **same** key and payload (or reload `version` for optimistic updates).
+
+### Revision concurrency
+
+Provider: **PostgreSQL**. Revision numbers are allocated inside a transaction after `SELECT id FROM "Article" WHERE id = $1 FOR UPDATE`, with a bounded retry on unique conflicts. Concurrent updates to the same article serialize; a lost optimistic race returns **HTTP 409** (not 500). Successful article content + its required revision are committed together — a conflict does not silently discard a successful update.
+
+### Legacy `publishedAt`
+
+`Article.publishedAt` was added without historical backfill. Admin CMS publish does not set a separate publication timestamp; `createdAt` is article creation, **not** a verified publication date. Therefore:
+
+- Legacy published rows may have `published_at: null` — this is intentional (Option B).
+- New Automation publishes set `publishedAt` once.
+- Subsequent published updates / rollbacks preserve the existing value (including `null`).
+
+### Make.com workflow
+
+1. `GET /blog/posts/{id}` — full article (`content`, `version`, `public_url`)
+2. `POST /blog/drafts/{id}/publish` + Idempotency-Key
+3. Confirm `public_accessible: true` and open `public_url`
+4. `GET /blog/posts/{id}` again
+5. `PATCH /blog/published/{id}` with `expected_updated_at` from `version` + Idempotency-Key
+6. Optional: list revisions / rollback **with** Idempotency-Key
+
+**Fields not in CMS schema (ignored / unsupported):** separate image alt/caption tables, `canonical_url`, dedicated Tag relations (tags live in `seoKeywords`).
 
 ---
 
